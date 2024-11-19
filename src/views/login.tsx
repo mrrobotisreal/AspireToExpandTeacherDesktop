@@ -1,11 +1,11 @@
 import React, { FC, useState, useEffect } from "react";
-import { Button, FormHelperText, Paper, Stack, TextField } from "@mui/material";
+import { Button, Paper, Stack, TextField } from "@mui/material";
 import { useIntl } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import bcrypt from "bcryptjs";
 
 import { useThemeContext } from "../context/themeContext";
-import { useStudentContext } from "../context/studentContext";
+import { useTeacherContext } from "../context/teacherContext";
 import { useMessagesContext } from "../context/messagesContext";
 import { MAIN_SERVER_URL } from "../constants/urls";
 
@@ -19,62 +19,15 @@ const Login: FC = () => {
     theme,
     toggleThemeMode,
     changeFontStyle,
-    lightFont,
     regularFont,
     heavyFont,
   } = useThemeContext();
-  const { getInfo, updateInfo } = useStudentContext();
+  const { getInfo, updateInfo } = useTeacherContext();
   const { changeLocale } = useMessagesContext();
-  const [isLoginVisible, setIsLoginVisible] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [registrationCode, setRegistrationCode] = useState("");
+  const [teacherID, setTeacherID] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleRegistration = async () => {
-    setIsLoading(true);
-    try {
-      if (registrationCode === "") {
-        console.error("Registration code is required"); // TODO: localize; add toast
-        setIsLoading(false);
-        return;
-      } else {
-        const response = await fetch(
-          `${MAIN_SERVER_URL}/validate/registration`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json; charset=UTF-8" },
-            body: JSON.stringify({ registration_code: registrationCode }),
-          }
-        );
-
-        if (response.status === 200) {
-          const body = await response.json();
-          updateInfo({
-            firstName: body.first_name,
-            lastName: body.last_name,
-            emailAddress: body.email_address,
-            themeMode: "light",
-            fontStyle: "Bauhaus",
-          });
-          navigate("/student-form", {
-            state: {
-              firstName: body.first_name,
-              lastName: body.last_name,
-              email: body.email_address,
-            },
-          });
-        } else {
-          console.error("Registration code is invalid!"); // TODO: localize; add toast
-        }
-        setIsLoading(false);
-      }
-    } catch (error) {
-      console.error("Error registering user:", error); // TODO: localize; add toast
-      setIsLoading(false);
-      throw error;
-    }
-  };
 
   const handleLogin = async () => {
     setIsLoading(true);
@@ -87,10 +40,11 @@ const Login: FC = () => {
         const salt = window.electronAPI.getSalt();
         const hashedPassword = bcrypt.hashSync(password, salt);
         const shortenedHash = hashedPassword.slice(0, 32);
-        const response = await fetch(`${MAIN_SERVER_URL}/validate/login`, {
+        const response = await fetch(`${MAIN_SERVER_URL}/teachers/validate/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json; charset=UTF-8" },
           body: JSON.stringify({
+            teacherID,
             email_address: emailAddress,
             password: shortenedHash,
           }),
@@ -100,7 +54,7 @@ const Login: FC = () => {
           const body = await response.json();
 
           updateInfo({
-            studentId: body.student_id,
+            teacherID: body.teacherID,
             firstName: body.first_name,
             preferredName: body.preferred_name,
             lastName: body.last_name,
@@ -123,16 +77,16 @@ const Login: FC = () => {
           if (body.font_style) {
             changeFontStyle(body.font_style);
           }
-          if (body.student_id) {
-            window.electronAPI.connectChatWebSocket(body.student_id);
+          if (body.teacherID) {
+            window.electronAPI.connectChatWebSocket(body.teacherID);
           } else {
             console.error(
-              "Student ID not found in response, cannot connect to chat server!"
+              "Teacher ID not found in response, cannot connect to chat server!"
             ); // TODO: localize; add toast
           }
           navigate("/home");
         } else {
-          console.error("Invalid email address or password!"); // TODO: localize; add toast
+          console.error("Invalid email address, teacher ID, or password!"); // TODO: localize; add toast
         }
         setIsLoading(false);
       }
@@ -144,10 +98,10 @@ const Login: FC = () => {
   };
 
   useEffect(() => {
-    const storedStudentInfo = getInfo();
+    const storedTeacherInfo = getInfo();
 
-    if (storedStudentInfo) {
-      updateInfo(storedStudentInfo);
+    if (storedTeacherInfo) {
+      updateInfo(storedTeacherInfo);
       navigate("/home");
     }
   }, []);
@@ -168,11 +122,7 @@ const Login: FC = () => {
         fontFamily={regularFont}
         color="textPrimary"
       >
-        {intl.formatMessage({
-          id: isLoginVisible
-            ? "welcomeScreen_loginTitle"
-            : "welcomeScreen_welcomeTitle",
-        })}
+        {intl.formatMessage({ id: "welcomeScreen_loginTitle" })}
       </Text>
       <Text
         variant="h4"
@@ -183,8 +133,28 @@ const Login: FC = () => {
         {intl.formatMessage({ id: "appTitle" })}!
       </Text>
       <br />
-      {isLoginVisible ? (
         <Stack direction="column" alignContent="space-evenly" spacing={4}>
+          <div>
+            <Text variant="body1" fontWeight="bold" fontFamily={regularFont} color="textPrimary">
+              {intl.formatMessage({ id: "welcomeScreen_inputTeacherID" })}:
+            </Text>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label={
+                <Text
+                  variant="body1"
+                  fontFamily={regularFont}
+                  color="textPrimary"
+                >
+                  {intl.formatMessage({ id: "common_teacherID" })}
+                </Text>
+              }
+              value={teacherID}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTeacherID(event.target.value)}
+              color="secondary"
+            />
+          </div>
           <div>
             <Text
               variant="body1"
@@ -210,7 +180,7 @@ const Login: FC = () => {
               onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                 setEmailAddress(event.target.value)
               }
-              color="primary"
+              color="secondary"
             />
           </div>
           <div>
@@ -239,86 +209,22 @@ const Login: FC = () => {
               onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                 setPassword(event.target.value)
               }
-              color="primary"
+              color="secondary"
             />
           </div>
         </Stack>
-      ) : (
-        <>
-          <Text
-            variant="body1"
-            fontWeight="bold"
-            fontFamily={regularFont}
-            color="textPrimary"
-          >
-            {intl.formatMessage({ id: "registrationCodeInputLabel" })}:
-          </Text>
-          <TextField
-            fullWidth
-            variant="outlined"
-            label={
-              <Text
-                variant="body1"
-                fontFamily={regularFont}
-                color="textPrimary"
-              >
-                {intl.formatMessage({ id: "registrationCodeInputHint" })}
-              </Text>
-            }
-            value={registrationCode}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-              setRegistrationCode(event.target.value)
-            }
-            color="primary"
-          />
-          <FormHelperText>
-            <Text
-              variant="caption"
-              fontFamily={lightFont}
-              color="textSecondary"
-            >
-              {intl.formatMessage({ id: "registrationCodeInputHelperText" })}
-            </Text>
-          </FormHelperText>
-        </>
-      )}
       <br />
       <Stack direction="row" justifyContent="space-between">
         <Button
-          variant="text"
-          onClick={() => setIsLoginVisible(!isLoginVisible)}
-          // color="primary"
-          sx={{ color: theme.palette.secondary.dark }}
-        >
-          <Text variant="body2" fontFamily={regularFont} color="textPrimary">
-            {intl.formatMessage({
-              id: isLoginVisible
-                ? "welcomeScreen_notRegisteredYetButton"
-                : "welcomeScreen_alreadyRegisteredButton",
-            })}
-          </Text>
-        </Button>
-        <Button
           variant="contained"
           sx={{ minWidth: 120, backgroundColor: theme.palette.secondary.light }}
-          onClick={() => {
-            if (isLoginVisible) {
-              handleLogin();
-            } else {
-              console.log("Handling registration...");
-              handleRegistration();
-            }
-          }}
+          onClick={handleLogin}
         >
           {isLoading ? (
             <CircularLoading />
           ) : (
             <Text variant="button" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({
-                id: isLoginVisible
-                  ? "common_login"
-                  : "registrationCodeSubmitButton",
-              })}
+              {intl.formatMessage({ id: "common_login" })}
             </Text>
           )}
         </Button>

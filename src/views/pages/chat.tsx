@@ -3,7 +3,7 @@ import { useIntl } from "react-intl";
 import { Grid } from "@mui/material";
 
 import { useChatContext, Chat } from "../../context/chatContext";
-import { useStudentContext } from "../../context/studentContext";
+import { useTeacherContext } from "../../context/teacherContext";
 import Layout from "../layout/layout";
 
 import ChatDialog from "./chatComponents/chatDialog";
@@ -12,7 +12,7 @@ import ChatWindow from "./chatComponents/chatWindow";
 
 const Chat: FC = () => {
   const intl = useIntl();
-  const { info, getInfo, updateInfo } = useStudentContext();
+  const { info, getInfo, updateInfo } = useTeacherContext();
   const {
     chats: _chats,
     chatsAreLoading,
@@ -41,7 +41,7 @@ const Chat: FC = () => {
             ? chat.mostRecentMessage.from
             : chat.to,
         toID:
-          chat.toID === info.studentId
+          chat.toID === info.teacherID
             ? chat.mostRecentMessage.fromID
             : chat.toID,
       };
@@ -68,7 +68,7 @@ const Chat: FC = () => {
     console.log("handling send...");
     const message = {
       from: info.preferredName!,
-      fromID: info.studentId!,
+      fromID: info.teacherID!,
       to: name,
       toID: toID,
       content: textMessage.trim(),
@@ -92,10 +92,10 @@ const Chat: FC = () => {
   }, []);
 
   useEffect(() => {
-    if (info.studentId && selectedChat) {
+    if (info.teacherID && selectedChat) {
       fetchMessages(selectedChat!);
-    } else if (info.studentId) {
-      fetchChats(info.studentId!);
+    } else if (info.teacherID) {
+      fetchChats(info.teacherID!);
     }
   }, [info, selectedChat]);
 

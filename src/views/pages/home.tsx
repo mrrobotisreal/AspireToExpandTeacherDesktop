@@ -1,14 +1,14 @@
 import React, { FC, useEffect } from "react";
 import { useIntl } from "react-intl";
 
-import { useStudentContext } from "../../context/studentContext";
+import { useTeacherContext } from "../../context/teacherContext";
 import { useThemeContext } from "../../context/themeContext";
 import Layout from "../layout/layout";
 import Text from "../text/text";
 
 const Home: FC = () => {
   const intl = useIntl();
-  const { info, getInfo, updateInfo } = useStudentContext();
+  const { info, getInfo, updateInfo } = useTeacherContext();
   const { theme, regularFont, heavyFont } = useThemeContext();
   const { firstName } = info;
 

@@ -8,7 +8,7 @@ import React, {
 
 import { HTTP_CHAT_SERVER_URL, MAIN_SERVER_URL } from "../constants/urls";
 
-import { useStudentContext } from "./studentContext";
+import { useStudentContext } from "./teacherContext";
 
 function sleep(duration: number): Promise<void> {
   return new Promise<void>((resolve) => {

@@ -31,7 +31,7 @@ import { useNavigate } from "react-router-dom";
 
 import Text from "../text/text";
 import { useThemeContext } from "../../context/themeContext";
-import { useStudentContext } from "../../context/studentContext";
+import { useTeacherContext } from "../../context/teacherContext";
 
 interface SideNavSubItem {
   id: string;
@@ -134,7 +134,7 @@ const SideNav: FC<SideNavProps> = ({
   const intl = useIntl();
   const navigate = useNavigate();
   const { regularFont, heavyFont } = useThemeContext();
-  const { removeInfo } = useStudentContext();
+  const { removeInfo } = useTeacherContext();
   const [assignmentsAreOpen, setAssignmentsAreOpen] = useState(false);
   const [gamesAreOpen, setGamesAreOpen] = useState(false);
   const [settingsAreOpen, setSettingsAreOpen] = useState(false);

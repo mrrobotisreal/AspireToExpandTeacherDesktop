@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useIntl } from "react-intl";
 
-import { useStudentContext } from "../../context/studentContext";
+import { useTeacherContext } from "../../context/teacherContext";
 import { useMessagesContext } from "../../context/messagesContext";
 import { useThemeContext } from "../../context/themeContext";
 import Layout from "../layout/layout";
@@ -20,7 +20,7 @@ import Toast from "../alerts/toast";
 
 const ProfileSettings: FC = () => {
   const intl = useIntl();
-  const { info, getInfo, updateInfo, updateInfoOnServer } = useStudentContext();
+  const { info, getInfo, updateInfo, updateInfoOnServer } = useTeacherContext();
   const { changeLocale } = useMessagesContext();
   const { theme, themeCustom, regularFont, heavyFont } = useThemeContext();
   const [profilePicturePath, setProfilePicturePath] = useState(

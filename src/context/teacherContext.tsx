@@ -10,8 +10,8 @@ import { AppFontStyle } from "../constants/fonts";
 import { MAIN_SERVER_URL } from "../constants/urls";
 import { ThemeMode } from "./themeContext";
 
-interface StudentInfo {
-  studentId?: string;
+interface TeacherInfo {
+  teacherID?: string;
   firstName?: string;
   preferredName?: string;
   lastName?: string;
@@ -25,23 +25,23 @@ interface StudentInfo {
   // TODO: Add more fields
 }
 
-interface StudentInfoContext {
-  info: StudentInfo;
-  getInfo: () => StudentInfo | null;
+interface TeacherInfoContext {
+  info: TeacherInfo;
+  getInfo: () => TeacherInfo | null;
   removeInfo: () => void;
-  updateInfo: (newInfo: StudentInfo) => void;
-  updateInfoOnServer: (newInfo: UpdateStudentInfoRequest) => Promise<void>;
+  updateInfo: (newInfo: TeacherInfo) => void;
+  updateInfoOnServer: (newInfo: UpdateTeacherInfoRequest) => Promise<void>;
 }
 
 const getInfo = () => {
-  const info = localStorage.getItem("studentInfo");
+  const info = localStorage.getItem("teacherInfo");
 
   return info ? JSON.parse(info) : null;
 };
 
-const removeInfo = () => localStorage.removeItem("studentInfo");
+const removeInfo = () => localStorage.removeItem("teacherInfo");
 
-const StudentContext = createContext<StudentInfoContext>({
+const TeacherContext = createContext<TeacherInfoContext>({
   info: {},
   getInfo,
   removeInfo,
@@ -49,10 +49,10 @@ const StudentContext = createContext<StudentInfoContext>({
   updateInfoOnServer: async () => {},
 });
 
-export const useStudentContext = () =>
-  useContext<StudentInfoContext>(StudentContext);
+export const useTeacherContext = () =>
+  useContext<TeacherInfoContext>(TeacherContext);
 
-interface UpdateStudentInfoRequest {
+interface UpdateTeacherInfoRequest {
   student_id?: string;
   email_address: string;
   preferred_name?: string;
@@ -63,19 +63,19 @@ interface UpdateStudentInfoRequest {
   time_zone?: string;
 }
 
-const updateInfoOnServer = async (newInfo: UpdateStudentInfoRequest) => {
+const updateInfoOnServer = async (newInfo: UpdateTeacherInfoRequest) => {
   try {
-    const response = await fetch(`${MAIN_SERVER_URL}/students/update`, {
+    const response = await fetch(`${MAIN_SERVER_URL}/teachers/update`, {
       method: "PUT",
       headers: { "Content-Type": "application/json; charset=UTF-8" },
       body: JSON.stringify(newInfo),
     });
 
     if (response.status >= 200 && response.status < 300) {
-      console.log("Student info updated successfully on the server");
+      console.log("Teacher info updated successfully on the server");
     }
   } catch (error) {
-    console.error("Error updating student info:", error); // TODO: localize
+    console.error("Error updating teacher info:", error); // TODO: localize
     throw error;
   }
 };
@@ -84,16 +84,16 @@ interface StudentProviderProps {
   children: ReactNode;
 }
 
-const StudentProvider: FC<StudentProviderProps> = ({ children }) => {
-  const [studentInfo, setStudentInfo] = useState<StudentInfo>({});
+const TeacherProvider: FC<StudentProviderProps> = ({ children }) => {
+  const [teacherInfo, setTeacherInfo] = useState<TeacherInfo>({});
 
-  const updateInfo = (newInfo: StudentInfo) => {
-    setStudentInfo(newInfo);
-    localStorage.setItem("studentInfo", JSON.stringify(newInfo));
+  const updateInfo = (newInfo: TeacherInfo) => {
+    setTeacherInfo(newInfo);
+    localStorage.setItem("teacherInfo", JSON.stringify(newInfo));
   };
 
   const values = {
-    info: studentInfo,
+    info: teacherInfo,
     getInfo,
     removeInfo,
     updateInfo,
@@ -101,8 +101,8 @@ const StudentProvider: FC<StudentProviderProps> = ({ children }) => {
   };
 
   return (
-    <StudentContext.Provider value={values}>{children}</StudentContext.Provider>
+    <TeacherContext.Provider value={values}>{children}</TeacherContext.Provider>
   );
 };
 
-export default StudentProvider;
+export default TeacherProvider;

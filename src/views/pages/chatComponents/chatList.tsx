@@ -13,7 +13,7 @@ import {
 import { AddCircle, FindInPage } from "@mui/icons-material";
 
 import { Chat } from "../../../context/chatContext";
-import { useStudentContext } from "../../../context/studentContext";
+import { useTeacherContext } from "../../../context/teacherContext";
 import { useThemeContext } from "../../../context/themeContext";
 import CircularLoading from "../../loading/circular";
 import Text from "../../text/text";
@@ -34,7 +34,7 @@ const ChatList: FC<ChatListProps> = ({
   handleStartNewChat,
 }) => {
   const intl = useIntl();
-  const { info, getInfo } = useStudentContext();
+  const { info, getInfo } = useTeacherContext();
   const { theme, themeCustom, regularFont } = useThemeContext();
 
   return (

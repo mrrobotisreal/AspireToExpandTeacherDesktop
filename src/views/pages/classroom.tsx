@@ -19,14 +19,14 @@ import {
   VideocamTwoTone,
 } from "@mui/icons-material";
 
-import { useStudentContext } from "../../context/studentContext";
+import { useTeacherContext } from "../../context/teacherContext";
 import { useThemeContext } from "../../context/themeContext";
 import Layout from "../layout/layout";
 import Text from "../text/text";
 
 const Classroom: FC = () => {
   const intl = useIntl();
-  const { info, getInfo, updateInfo } = useStudentContext();
+  const { info, getInfo, updateInfo } = useTeacherContext();
   const { theme, themeCustom, regularFont, heavyFont } = useThemeContext();
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const localVideoRef = useRef<HTMLVideoElement>(null);

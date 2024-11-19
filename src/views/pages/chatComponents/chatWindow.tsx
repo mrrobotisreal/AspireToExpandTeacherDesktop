@@ -4,7 +4,7 @@ import { Box, IconButton, Paper, TextField } from "@mui/material";
 import { AttachFileTwoTone, Send } from "@mui/icons-material";
 
 import { ChatMessage } from "../../../context/chatContext";
-import { useStudentContext } from "../../../context/studentContext";
+import { useTeacherContext } from "../../../context/teacherContext";
 import { useThemeContext } from "../../../context/themeContext";
 import CircularLoading from "../../loading/circular";
 import Text from "../../text/text";
@@ -34,7 +34,7 @@ const ChatWindow: FC<ChatWindowProps> = ({
 }) => {
   const intl = useIntl();
   const { theme, regularFont } = useThemeContext();
-  const { info } = useStudentContext();
+  const { info } = useTeacherContext();
   const messagesComponents = messagesAreLoading ? (
     <CircularLoading />
   ) : (

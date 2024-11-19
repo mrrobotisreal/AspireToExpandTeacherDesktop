@@ -18,7 +18,7 @@ import {
 import { useIntl } from "react-intl";
 import { useNavigate } from "react-router-dom";
 
-import { useStudentContext } from "../../context/studentContext";
+import { useTeacherContext } from "../../context/teacherContext";
 import { useThemeContext } from "../../context/themeContext";
 import Text from "../text/text";
 
@@ -30,7 +30,7 @@ interface TopNavProps {
 const TopNav: FC<TopNavProps> = ({ handleDrawerOpen, title }) => {
   const intl = useIntl();
   const navigate = useNavigate();
-  const { info, removeInfo } = useStudentContext();
+  const { info, removeInfo } = useTeacherContext();
   const { theme, regularFont, heavyFont } = useThemeContext();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 

@@ -12,7 +12,7 @@ import { useIntl } from "react-intl";
 
 import { AppFontStyle } from "../../constants/fonts";
 import { useThemeContext, ThemeMode } from "../../context/themeContext";
-import { useStudentContext } from "../../context/studentContext";
+import { useTeacherContext } from "../../context/teacherContext";
 import Layout from "../layout/layout";
 import Text from "../text/text";
 import Toast from "../alerts/toast";
@@ -27,7 +27,7 @@ const Settings: FC = () => {
     heavyFont,
     regularFont,
   } = useThemeContext();
-  const { info, getInfo, updateInfo, updateInfoOnServer } = useStudentContext();
+  const { info, getInfo, updateInfo, updateInfoOnServer } = useTeacherContext();
   const [selectedThemeMode, setSelectedThemeMode] = useState<ThemeMode>(
     info.themeMode ?? "light"
   );
