@@ -1,0 +1,140 @@
+/* src/assets/styles/style.css */
+
+/**
+ * Custom fonts
+ */
+/* Bauhaus font */
+@font-face {
+  font-family: "Bauhaus-Light";
+  src: url("../fonts/bauhausstd-light.ttf") format("truetype");
+  font-weight: lighter;
+}
+@font-face {
+  font-family: "Bauhaus-Medium";
+  src: url("../fonts/bauhausstd-medium.ttf") format("truetype");
+  font-weight: normal;
+}
+@font-face {
+  font-family: "Bauhaus-Heavy";
+  src: url("../fonts/bauhausstd-heavy.ttf") format("truetype");
+  font-weight: bold;
+}
+
+/* Hummingbird font */
+@font-face {
+  font-family: "Hummingbird";
+  src: url("../fonts//hummingbird.ttf") format("truetype");
+  font-weight: normal;
+}
+
+/* LobsterTwo font */
+@font-face {
+  font-family: "LobsterTwo-Regular";
+  src: url("../fonts/LobsterTwo-Regular.ttf") format("truetype");
+  font-weight: normal;
+}
+@font-face {
+  font-family: "LobsterTwo-Bold";
+  src: url("../fonts/LobsterTwo-Bold.ttf") format("truetype");
+  font-weight: bold;
+}
+
+/* NexaScript Font */
+@font-face {
+  font-family: "NexaScript-Light";
+  src: url("../fonts/NexaScriptLight.otf") format("opentype");
+  font-weight: normal;
+}
+@font-face {
+  font-family: "NexaScript-Heavy";
+  src: url("../fonts/NexaScriptHeavy.otf") format("opentype");
+  font-weight: bold;
+}
+
+/* NotoSerif font */
+@font-face {
+  font-family: "NotoSerif";
+  src: url("../fonts/NotoSerif.ttf") format("truetype");
+  font-weight: normal;
+}
+
+/* Roboto font */
+@font-face {
+  font-family: "Roboto-Regular";
+  src: url("../fonts/Roboto-Regular.ttf") format("truetype");
+  font-weight: normal;
+}
+@font-face {
+  font-family: "Roboto-Bold";
+  src: url("../fonts/Roboto-Bold.ttf") format("truetype");
+  font-weight: bold;
+}
+
+/* Ubuntu font */
+@font-face {
+  font-family: "Ubuntu-Regular";
+  src: url("../fonts/Ubuntu-Regular.ttf") format("truetype");
+  font-weight: normal;
+}
+@font-face {
+  font-family: "Ubuntu-Bold";
+  src: url("../fonts/Ubuntu-Bold.ttf") format("truetype");
+  font-weight: bold;
+}
+
+/**
+ * Background style
+ */
+/* Background gradient */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(
+    to left top,
+    #78290f,
+    #ff7d00,
+    #ffbf69,
+    #cbf3f0,
+    #2ec4b6,
+    #006d77,
+    #001524
+  );
+  margin: 0;
+  font-family: "Bauhaus-Medium", Arial, sans-serif;
+}
+
+/**
+ * Register/Login style
+ */
+
+.input-field {
+  width: 80%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 1em;
+  font-family: "Bauhaus-Light", Arial, sans-serif;
+}
+
+.btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  background-color: #4a90e2;
+  color: white;
+  font-size: 1em;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  font-family: "Bauhaus-Medium", Arial, sans-serif;
+}
+
+.link {
+  color: #4a90e2;
+  font-size: 0.9em;
+  font-family: "Bauhaus-Light", Arial, sans-serif;
+  text-decoration: none;
+}

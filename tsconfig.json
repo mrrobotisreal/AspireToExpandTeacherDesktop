@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "outDir": "./dist",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "checkJs": true,
+    "lib": ["ES2021", "DOM", "ESNext"],
+    "rootDir": "./src",
+    "typeRoots": ["node_modules/@types", "./src/types"],
+    "removeComments": true,
+    "baseUrl": "src",
+    "paths": {
+      "@types/*": ["types/*"],
+      "@constants/*": ["constants/*"],
+      "@context/*": ["context/*"],
+      "@views/*": ["views/*"],
+      "@utilities/*": ["utilities/*"],
+      "@locales/*": ["../locales/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

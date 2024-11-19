@@ -1,0 +1,73 @@
+{
+  "name": "aspirewithalinateacherdesktop",
+  "version": "1.0.0",
+  "description": "The teacher version of the AspireWithAlina Desktop app",
+  "main": "dist/main.js",
+  "build": {
+    "appId": "com.iamwintrow.aspirewithalinateacherdesktop",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "dist/**/*",
+      "index.html"
+    ],
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  },
+  "scripts": {
+    "build": "webpack --config webpack.config.cjs && tsc",
+    "build-node": "tsc -p tsconfig.node.json",
+    "react-dev": "webpack serve --config webpack.config.cjs --watch",
+    "start": "NODE_ENV=development tsc && electron .",
+    "start-node": "NODE_ENV=development tsc -p tsconfig.node.json && electron .",
+    "wstart": "cross-env NODE_ENV=development tsc && electron .",
+    "wstart-node": "cross-env NODE_ENV=development tsc -p tsconfig.node.json && electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "author": "Mitchell Wintrow",
+  "license": "ISC",
+  "devDependencies": {
+    "@electron/packager": "^18.3.6",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/electron": "^1.4.38",
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "cross-env": "^7.0.3",
+    "css-loader": "^7.1.2",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.6.3",
+    "prettier": "^3.3.3",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "webpack": "^5.96.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.1.0"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@fontsource/roboto": "^5.1.0",
+    "@mui/icons-material": "^6.1.7",
+    "@mui/material": "^6.1.7",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-intl": "^7.0.1",
+    "react-router-dom": "^6.28.0"
+  }
+}
