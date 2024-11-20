@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef, useEffect } from "react";
+import React, { FC, useCallback, useState, useRef, useEffect } from "react";
 import { useIntl } from "react-intl";
 import {
   Box,
@@ -7,7 +7,6 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Skeleton,
   Stack,
   Tooltip,
 } from "@mui/material";
@@ -21,30 +20,40 @@ import {
 
 import { useTeacherContext } from "../../context/teacherContext";
 import { useThemeContext } from "../../context/themeContext";
+import useClassroomSocket from "../../hooks/useClassroomSocket";
 import Layout from "../layout/layout";
 import Text from "../text/text";
 
+const url = `ws://localhost:9999/?type=teacher&room=123`;
+
 const Classroom: FC = () => {
   const intl = useIntl();
-  const { info, getInfo, updateInfo } = useTeacherContext();
-  const { theme, themeCustom, regularFont, heavyFont } = useThemeContext();
+  const { getInfo, updateInfo } = useTeacherContext();
+  const { theme, regularFont, heavyFont } = useThemeContext();
+  const [messages, setMessages] = useState<string[]>([]); // TODO: Deal with these later
+  const handleMessage = useCallback<(message: string) => void>(
+    (message: string) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    },
+    []
+  );
+  const { sendMessage } = useClassroomSocket({
+    url,
+    onMessage: handleMessage,
+  });
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const localVideoRef = useRef<HTMLVideoElement>(null);
-  const peerConnection = useRef<RTCPeerConnection>(
-    new RTCPeerConnection({
-      iceServers: [
-        {
-          urls: [
-            "stun:stun1.l.google.com:19302",
-            "stun:stun2.l.google.com:19302",
-          ],
-        },
-      ],
-    })
-  );
-  const socket = new WebSocket("ws://localhost:9999/video");
+  const peerConnection = new RTCPeerConnection({
+    iceServers: [
+      { urls: "stun:stun.l.google.com:19302" },
+      { urls: "stun:stun1.l.google.com:19302" },
+      { urls: "stun:stun2.l.google.com:19302" },
+      { urls: "stun:stun3.l.google.com:19302" },
+      { urls: "stun:stun4.l.google.com:19302" },
+    ],
+  });
   const localStream = useRef<MediaStream | null>(null);
-  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  // const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null); // TODO: Deal with this later
   const [isMicOn, setIsMicOn] = useState(true);
   const [audioDevices, setAudioDevices] = useState<MediaStreamTrack[]>([]);
   const [selectedAudioDevice, setSelectedAudioDevice] = useState("Default");
@@ -104,7 +113,7 @@ const Classroom: FC = () => {
       setVideoDevices(videoStreamDevices);
       setSelectedVideoDevice(videoStreamDevices[0].label);
       stream.getTracks().forEach((track) => {
-        peerConnection.current.addTrack(track, stream);
+        peerConnection.addTrack(track, stream);
       });
       setIsMicOn(true);
       setIsVideoOn(true);
@@ -114,61 +123,22 @@ const Classroom: FC = () => {
   };
 
   useEffect(() => {
-    socket.onmessage = async (message) => {
-      console.log("Received message: ", message.data);
-      const { event, payload } = JSON.parse(message.data);
-
-      if (event === "offer") {
-        await peerConnection.current.setRemoteDescription(
-          new RTCSessionDescription(payload)
-        );
-        const answer = await peerConnection.current.createAnswer();
-        await peerConnection.current.setLocalDescription(answer);
-        socket.send(JSON.stringify({ event: "answer", payload: answer }));
-      } else if (event === "answer") {
-        await peerConnection.current.setRemoteDescription(
-          new RTCSessionDescription(payload)
-        );
-      } else if (event === "ice-candidate") {
-        await peerConnection.current.addIceCandidate(
-          new RTCIceCandidate(payload)
-        );
-      }
-    };
-
-    peerConnection.current.onicecandidate = (event) => {
+    peerConnection.onicecandidate = (event) => {
       console.log("ICE candidate: ", event.candidate);
-      if (event.candidate) {
-        console.log("Sending ICE candidate...");
-        socket.send(
-          JSON.stringify({ event: "ice-candidate", payload: event.candidate })
-        );
-      }
-    };
-
-    peerConnection.current.ontrack = (event) => {
-      const [stream] = event.streams;
-
-      if (remoteVideoRef.current) {
-        console.log("Setting remote video stream...");
-        remoteVideoRef.current.srcObject = stream;
-      }
-      setRemoteStream(stream);
     };
 
     startMedia();
 
     return () => {
-      peerConnection.current.close();
-      socket.close();
+      peerConnection.close();
     };
   }, []);
 
-  const createOffer = async () => {
-    const offer = await peerConnection.current.createOffer();
-    await peerConnection.current.setLocalDescription(offer);
-    socket.send(JSON.stringify({ event: "offer", payload: offer }));
-  };
+  async function broadcastOffer() {
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+    sendMessage(JSON.stringify({ type: "offer", data: offer }));
+  }
 
   useEffect(() => {
     const storedStudentInfo = getInfo();
@@ -181,8 +151,8 @@ const Classroom: FC = () => {
   }, []);
 
   return (
-    <Layout title={"Classroom"}>
-      <Tooltip title="Alina's video" placement="top" arrow>
+    <Layout title={intl.formatMessage({ id: "common_classroom" })}>
+      <Tooltip title="Student's video" placement="top" arrow>
         <video
           ref={remoteVideoRef}
           autoPlay
@@ -241,7 +211,7 @@ const Classroom: FC = () => {
           >
             <Box padding={2}>
               <Text variant="h6" fontFamily={heavyFont} color="textPrimary">
-                Call settings
+                {intl.formatMessage({ id: "classroom_callSettings" })}
               </Text>
               <Divider sx={{ my: 0.5 }} />
               <Text
@@ -316,10 +286,10 @@ const Classroom: FC = () => {
           <Button
             variant="contained"
             sx={{ backgroundColor: theme.palette.secondary.light }}
-            onClick={createOffer}
+            onClick={broadcastOffer}
           >
             <Text variant="button" fontFamily={regularFont} color="textPrimary">
-              Join class
+              {intl.formatMessage({ id: "classroom_startCall" })}
             </Text>
           </Button>
         </Stack>

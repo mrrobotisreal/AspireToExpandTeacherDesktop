@@ -14,7 +14,9 @@ module.exports = {
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: "ts-loader",
+        use: [
+          "ts-loader",
+        ],
       },
       {
         test: /\.css$/,
@@ -47,7 +49,7 @@ module.exports = {
     compress: true,
     open: false,
     hot: true,
-    port: 9000,
+    port: 9001,
     historyApiFallback: true,
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -59,4 +61,7 @@ module.exports = {
       template: "index.html",
     }),
   ],
+  watchOptions: {
+    ignored: /node_modules/,
+  },
 };

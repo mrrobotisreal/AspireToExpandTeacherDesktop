@@ -59,32 +59,13 @@ function createWindow(): void {
 
   mainWindow.maximize();
   mainWindow.webContents.openDevTools();
-  // TODO: see if I need the code below still after deploying server
-  // mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
-  //   (details, callback) => {
-  //     callback({ requestHeaders: { Origin: "*", ...details.requestHeaders } });
-  //   }
-  // );
-  // mainWindow.webContents.session.webRequest.onHeadersReceived(
-  //   (details, callback) => {
-  //     callback({
-  //       responseHeaders: {
-  //         "Access-Control-Allow-Origin": "*",
-  //         "Access-Control-Allow-Headers": "*",
-  //         ...details.responseHeaders,
-  //       },
-  //     });
-  //   }
-  // );
 
-  mainWindow.loadFile("index.html");
   if (process.env.NODE_ENV === "development") {
-    console.log("Loading from Webpack Dev Server at http://localhost:9000");
-    mainWindow.loadURL("http://localhost:9000");
+    console.log("Loading from Webpack Dev Server at http://localhost:9001/");
+    mainWindow.loadURL("http://localhost:9001/");
   } else {
     console.log("Loading from local index.html");
-    // mainWindow.loadFile('index.html');
-    mainWindow.loadFile(path.join(__dirname, "../index.html"));
+    mainWindow.loadFile(path.join(__dirname, "..", "index.html"));
   }
 
   ipcMain.handle("get-locale", () => app.getLocale());

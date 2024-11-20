@@ -8,7 +8,7 @@ import React, {
 
 import { HTTP_CHAT_SERVER_URL, MAIN_SERVER_URL } from "../constants/urls";
 
-import { useStudentContext } from "./teacherContext";
+import { useTeacherContext } from "./teacherContext";
 
 function sleep(duration: number): Promise<void> {
   return new Promise<void>((resolve) => {
@@ -76,7 +76,7 @@ const ChatContext = createContext<ChatContextProps>({
 export const useChatContext = () => useContext<ChatContextProps>(ChatContext);
 
 const ChatProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const { info } = useStudentContext();
+  const { info } = useTeacherContext();
   const [chats, setChats] = useState<Chat[]>([]);
   const [chatsAreLoading, setChatsAreLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);

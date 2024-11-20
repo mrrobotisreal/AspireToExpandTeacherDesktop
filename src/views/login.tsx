@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect } from "react";
-import { Button, Paper, Stack, TextField } from "@mui/material";
+import { Box, Button, Paper, Stack, TextField } from "@mui/material";
 import { useIntl } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import bcrypt from "bcryptjs";
@@ -214,7 +214,13 @@ const Login: FC = () => {
           </div>
         </Stack>
       <br />
-      <Stack direction="row" justifyContent="space-between">
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-end",
+        }}
+      >
         <Button
           variant="contained"
           sx={{ minWidth: 120, backgroundColor: theme.palette.secondary.light }}
@@ -228,7 +234,7 @@ const Login: FC = () => {
             </Text>
           )}
         </Button>
-      </Stack>
+      </Box>
     </Paper>
   );
 };
