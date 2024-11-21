@@ -47,11 +47,15 @@ const Classroom: FC = () => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const localStream = useRef<MediaStream | null>(null);
   const [isMicOn, setIsMicOn] = useState(true);
-  const [audioDevices, setAudioDevices] = useState<MediaStreamTrack[]>([]);
-  const [selectedAudioDevice, setSelectedAudioDevice] = useState("Default");
+  const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedAudioDeviceLabel, setSelectedAudioDeviceLabel] =
+    useState("Default");
+  const [selectedAudioDeviceID, setSelectedAudioDeviceID] = useState("");
   const [isVideoOn, setIsVideoOn] = useState(true);
-  const [videoDevices, setVideoDevices] = useState<MediaStreamTrack[]>([]);
-  const [selectedVideoDevice, setSelectedVideoDevice] = useState("Default");
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedVideoDeviceLabel, setSelectedVideoDeviceLabel] =
+    useState("Default");
+  const [selectedVideoDeviceID, setSelectedVideoDeviceID] = useState("");
   const [callSettingsAnchorEl, setCallSettingsAnchorEl] =
     useState<null | HTMLElement>(null);
   const [callSettingsMenuIsOpen, setCallSettingsMenuIsOpen] = useState(false);
@@ -84,6 +88,61 @@ const Classroom: FC = () => {
     }
   };
 
+  const handleSelectVideoDevice = async (deviceId: string, label: string) => {
+    try {
+      const constraints = {
+        video: { deviceId: { exact: deviceId } },
+        audio: { deviceId: { exact: selectedAudioDeviceID } },
+      };
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+      setSelectedVideoDeviceID(deviceId);
+      setSelectedVideoDeviceLabel(label);
+    } catch (error) {
+      console.error(
+        "Error starting video stream with the selected device: ", // TODO: localize
+        error
+      );
+    }
+  };
+  const handleSelectAudioDevice = async (deviceId: string, label: string) => {
+    try {
+      const constraints = {
+        video: { deviceId: { exact: selectedVideoDeviceID } },
+        audio: { deviceId: { exact: deviceId } },
+      };
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+      setSelectedAudioDeviceID(deviceId);
+      setSelectedAudioDeviceLabel(label);
+    } catch (error) {
+      console.error(
+        "Error starting audio stream with the selected device: ", // TODO: localize
+        error
+      );
+    }
+  };
+
+  const fetchDevices = async () => {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const audioStreamDevices = devices.filter(
+      (device) => device.kind === "audioinput"
+    );
+    const videoStreamDevices = devices.filter(
+      (device) => device.kind === "videoinput"
+    );
+    setAudioDevices(audioStreamDevices);
+    setSelectedAudioDeviceID(audioStreamDevices[0].deviceId);
+    setSelectedAudioDeviceLabel(audioStreamDevices[0].label);
+    setVideoDevices(videoStreamDevices);
+    setSelectedVideoDeviceID(videoStreamDevices[0].deviceId);
+    setSelectedVideoDeviceLabel(videoStreamDevices[0].label);
+  };
+
   const startMedia = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -94,17 +153,12 @@ const Classroom: FC = () => {
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
       }
-      const audioStreamDevices: MediaStreamTrack[] = stream.getAudioTracks();
-      const videoStreamDevices: MediaStreamTrack[] = stream.getVideoTracks();
-      setAudioDevices(audioStreamDevices);
-      setSelectedAudioDevice(audioStreamDevices[0].label);
-      setVideoDevices(videoStreamDevices);
-      setSelectedVideoDevice(videoStreamDevices[0].label);
       stream.getTracks().forEach((track) => {
         peerConnection.addTrack(track, stream);
       });
       setIsMicOn(true);
       setIsVideoOn(true);
+      await fetchDevices();
     } catch (error) {
       console.error("Error starting media: ", error);
     }
@@ -200,16 +254,21 @@ const Classroom: FC = () => {
                 fontWeight="bold"
                 color="textPrimary"
               >
-                Video
+                {intl.formatMessage({ id: "common_video" })}
               </Text>
               {videoDevices.map((device) => (
-                <MenuItem key={device.label}>
+                <MenuItem
+                  key={device.label}
+                  onClick={() =>
+                    handleSelectVideoDevice(device.deviceId, device.label)
+                  }
+                >
                   <Text
                     variant="body2"
                     fontFamily={regularFont}
                     color="textPrimary"
                   >
-                    {device.label === selectedVideoDevice
+                    {device.label === selectedVideoDeviceLabel
                       ? `✅ ${device.label}`
                       : device.label}
                   </Text>
@@ -222,16 +281,21 @@ const Classroom: FC = () => {
                 fontWeight="bold"
                 color="textPrimary"
               >
-                Audio
+                {intl.formatMessage({ id: "common_audio" })}
               </Text>
               {audioDevices.map((device) => (
-                <MenuItem key={device.label}>
+                <MenuItem
+                  key={device.label}
+                  onClick={() =>
+                    handleSelectAudioDevice(device.deviceId, device.label)
+                  }
+                >
                   <Text
                     variant="body2"
                     fontFamily={regularFont}
                     color="textPrimary"
                   >
-                    {device.label === selectedAudioDevice
+                    {device.label === selectedAudioDeviceLabel
                       ? `✅ ${device.label}`
                       : device.label}
                   </Text>
@@ -239,7 +303,7 @@ const Classroom: FC = () => {
               ))}
             </Box>
           </Menu>
-          <Tooltip title={selectedAudioDevice} placement="top" arrow>
+          <Tooltip title={selectedAudioDeviceLabel} placement="top" arrow>
             <IconButton size="large" onClick={toggleAudio}>
               {isMicOn ? (
                 <MicTwoTone
@@ -251,7 +315,7 @@ const Classroom: FC = () => {
               )}
             </IconButton>
           </Tooltip>
-          <Tooltip title={selectedVideoDevice} placement="top" arrow>
+          <Tooltip title={selectedVideoDeviceLabel} placement="top" arrow>
             <IconButton size="large" onClick={toggleVideo}>
               {isVideoOn ? (
                 <VideocamTwoTone
