@@ -18,13 +18,15 @@ import {
   VideocamTwoTone,
 } from "@mui/icons-material";
 
+import { VIDEO_SERVER_URL } from "../../constants/urls";
+console.log("VIDEO_SERVER_URL: ", VIDEO_SERVER_URL);
 import { useTeacherContext } from "../../context/teacherContext";
 import { useThemeContext } from "../../context/themeContext";
 import useClassroomSocket from "../../hooks/useClassroomSocket";
 import Layout from "../layout/layout";
 import Text from "../text/text";
 
-const url = `ws://localhost:9999/?type=teacher&room=123`;
+const url = `${VIDEO_SERVER_URL}/?type=teacher&room=123`;
 
 const Classroom: FC = () => {
   const intl = useIntl();
