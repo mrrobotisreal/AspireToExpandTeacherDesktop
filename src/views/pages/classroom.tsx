@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState, useRef, useEffect } from "react";
+import React, { FC, useState, useRef, useEffect } from "react";
 import { useIntl } from "react-intl";
 import {
   Box,
@@ -30,30 +30,22 @@ const Classroom: FC = () => {
   const intl = useIntl();
   const { getInfo, updateInfo } = useTeacherContext();
   const { theme, regularFont, heavyFont } = useThemeContext();
-  const [messages, setMessages] = useState<string[]>([]); // TODO: Deal with these later
-  const handleMessage = useCallback<(message: string) => void>(
-    (message: string) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
-    },
-    []
-  );
-  const { sendMessage } = useClassroomSocket({
+  const { sendMessage, peerConnection } = useClassroomSocket({
     url,
-    onMessage: handleMessage,
   });
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      sendMessage(JSON.stringify({ type: "candidate", data: event.candidate }));
+    }
+  };
+  peerConnection.ontrack = (event) => {
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = event.streams[0];
+    }
+  };
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const localVideoRef = useRef<HTMLVideoElement>(null);
-  const peerConnection = new RTCPeerConnection({
-    iceServers: [
-      { urls: "stun:stun.l.google.com:19302" },
-      { urls: "stun:stun1.l.google.com:19302" },
-      { urls: "stun:stun2.l.google.com:19302" },
-      { urls: "stun:stun3.l.google.com:19302" },
-      { urls: "stun:stun4.l.google.com:19302" },
-    ],
-  });
   const localStream = useRef<MediaStream | null>(null);
-  // const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null); // TODO: Deal with this later
   const [isMicOn, setIsMicOn] = useState(true);
   const [audioDevices, setAudioDevices] = useState<MediaStreamTrack[]>([]);
   const [selectedAudioDevice, setSelectedAudioDevice] = useState("Default");
@@ -76,9 +68,7 @@ const Classroom: FC = () => {
   };
 
   const toggleVideo = () => {
-    console.log("Toggling video...");
     const videoTrack = localStream.current?.getVideoTracks()[0];
-    console.log("Video track: ", videoTrack);
 
     if (videoTrack) {
       videoTrack.enabled = !videoTrack.enabled;
@@ -86,9 +76,7 @@ const Classroom: FC = () => {
     }
   };
   const toggleAudio = () => {
-    console.log("Toggling audio...");
     const audioTrack = localStream.current?.getAudioTracks()[0];
-    console.log("Audio track: ", audioTrack);
 
     if (audioTrack) {
       audioTrack.enabled = !audioTrack.enabled;
@@ -123,15 +111,7 @@ const Classroom: FC = () => {
   };
 
   useEffect(() => {
-    peerConnection.onicecandidate = (event) => {
-      console.log("ICE candidate: ", event.candidate);
-    };
-
     startMedia();
-
-    return () => {
-      peerConnection.close();
-    };
   }, []);
 
   async function broadcastOffer() {

@@ -1,19 +1,69 @@
-import { useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect } from "react";
+
+export let candidateQueue: RTCIceCandidate[] = [];
+export let remoteDescriptionSet = false;
 
 interface UseClassroomSocketProps {
   url: string;
-  onMessage: (message: string) => void;
 }
 
 interface UseClassroomSocketReturns {
   sendMessage: (message: string) => void;
+  peerConnection: RTCPeerConnection;
 }
 
 const useClassroomSocket = ({
   url,
-  onMessage,
 }: UseClassroomSocketProps): UseClassroomSocketReturns => {
   const socketRef = useRef<WebSocket | null>(null);
+  const peerConnection = useRef<RTCPeerConnection>(
+    new RTCPeerConnection({
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+        { urls: "stun:stun2.l.google.com:19302" },
+        { urls: "stun:stun3.l.google.com:19302" },
+        { urls: "stun:stun4.l.google.com:19302" },
+      ],
+    })
+  );
+
+  const onMessage = useCallback(async (message: string) => {
+    const msgObj = JSON.parse(message);
+    if (msgObj.type === "candidate") {
+      const candidate = new RTCIceCandidate(msgObj.data);
+
+      if (remoteDescriptionSet) {
+        await peerConnection.current.addIceCandidate(candidate);
+      } else {
+        candidateQueue.push(candidate);
+      }
+      await peerConnection.current.addIceCandidate(msgObj.data);
+    } else if (msgObj.type === "offer") {
+      await peerConnection.current.setRemoteDescription(
+        new RTCSessionDescription(msgObj.data)
+      );
+      remoteDescriptionSet = true;
+
+      while (candidateQueue.length > 0) {
+        const queuedCandidate = candidateQueue.shift();
+        await peerConnection.current.addIceCandidate(queuedCandidate!);
+      }
+
+      const answer = await peerConnection.current.createAnswer();
+      await peerConnection.current.setLocalDescription(answer);
+    } else if (msgObj.type === "answer") {
+      await peerConnection.current.setRemoteDescription(
+        new RTCSessionDescription(msgObj.data)
+      );
+      remoteDescriptionSet = true;
+
+      while (candidateQueue.length > 0) {
+        const queuedCandidate = candidateQueue.shift();
+        await peerConnection.current.addIceCandidate(queuedCandidate!);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!socketRef.current) {
@@ -25,8 +75,17 @@ const useClassroomSocket = ({
       };
 
       socket.onmessage = async (event) => {
-        if (onMessage) {
-          onMessage(event.data);
+        const rawData = event.data;
+
+        if (rawData instanceof Blob) {
+          const textData = await rawData.text();
+          const message = JSON.parse(textData);
+          onMessage(textData);
+        } else if (typeof rawData === "string") {
+          const message = JSON.parse(rawData);
+          onMessage(rawData);
+        } else {
+          console.warn(`Received unknown data type: ${typeof rawData}`);
         }
       };
 
@@ -41,7 +100,6 @@ const useClassroomSocket = ({
       };
 
       return () => {
-        console.log("Cleaning up classroom socket");
         socket.close();
       };
     }
@@ -57,6 +115,7 @@ const useClassroomSocket = ({
 
   return {
     sendMessage,
+    peerConnection: peerConnection.current,
   };
 };
 
