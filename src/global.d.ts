@@ -2,6 +2,7 @@ export interface ElectronAPI {
   getLocale: () => Promise<string>;
   selectImage: () => Promise<string>;
   readFile: (filePath: string) => Promise<Buffer>;
+  generateKeyPair: () => Promise<{ publicKey: string; privateKey: string }>;
   getMainServerURL: () => string;
   getVideoServerURL: () => string;
   getChatServerURL: () => string;

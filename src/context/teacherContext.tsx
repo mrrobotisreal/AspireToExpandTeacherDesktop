@@ -63,6 +63,7 @@ interface UpdateTeacherInfoRequest {
   profile_picture_url?: string;
   profile_picture_path?: string;
   time_zone?: string;
+  public_key?: string;
 }
 
 const updateInfoOnServer = async (newInfo: UpdateTeacherInfoRequest) => {

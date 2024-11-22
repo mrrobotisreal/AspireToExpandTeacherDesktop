@@ -8,6 +8,7 @@ import { useThemeContext } from "../context/themeContext";
 import { useTeacherContext } from "../context/teacherContext";
 import { useMessagesContext } from "../context/messagesContext";
 import { MAIN_SERVER_URL } from "../constants/urls";
+import useEncryption from "../hooks/useEncryption";
 
 import CircularLoading from "./loading/circular";
 import Text from "./text/text";
@@ -17,8 +18,9 @@ const Login: FC = () => {
   const navigate = useNavigate();
   const { theme, toggleThemeMode, changeFontStyle, regularFont, heavyFont } =
     useThemeContext();
-  const { getInfo, updateInfo } = useTeacherContext();
+  const { getInfo, updateInfo, updateInfoOnServer } = useTeacherContext();
   const { changeLocale } = useMessagesContext();
+  const { generateKeyPair } = useEncryption();
   const [isLoading, setIsLoading] = useState(false);
   const [teacherID, setTeacherID] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
@@ -82,6 +84,19 @@ const Login: FC = () => {
             console.error(
               "Teacher ID not found in response, cannot connect to chat server!"
             ); // TODO: localize; add toast
+          }
+          if (!body.public_key) {
+            const keyPair = await generateKeyPair();
+            if (keyPair) {
+              updateInfoOnServer({
+                email_address: emailAddress,
+                public_key: keyPair.publicKey,
+              });
+            } else {
+              console.error(
+                "Error generating key pair, data not being encrypted!"
+              ); // TODO: localize; add toast
+            }
           }
           navigate("/home");
         } else {

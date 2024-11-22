@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getLocale: () => ipcRenderer.invoke("get-locale"),
   selectImage: () => ipcRenderer.invoke("select-image"),
   readFile: (filePath: string) => ipcRenderer.invoke("read-file", filePath),
+  generateKeyPair: () => ipcRenderer.invoke("generate-key-pair"),
   getMainServerURL: () => process.env.MAIN_SERVER_URL,
   getVideoServerURL: () => process.env.WS_VIDEO_SERVER_URL,
   getChatServerURL: () => process.env.WS_CHAT_SERVER_URL,
