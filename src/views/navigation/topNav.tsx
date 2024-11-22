@@ -31,8 +31,15 @@ const TopNav: FC<TopNavProps> = ({ handleDrawerOpen, title }) => {
   const intl = useIntl();
   const navigate = useNavigate();
   const { info, removeInfo } = useTeacherContext();
-  const { theme, regularFont, heavyFont } = useThemeContext();
+  const { regularFont, heavyFont } = useThemeContext();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  let avatarSrc = "";
+
+  if (info.profilePictureURL && info.profilePictureURL !== "") {
+    avatarSrc = info.profilePictureURL;
+  } else if (info.profilePicturePath && info.profilePicturePath !== "") {
+    avatarSrc = info.profilePicturePath;
+  }
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -61,11 +68,7 @@ const TopNav: FC<TopNavProps> = ({ handleDrawerOpen, title }) => {
         >
           {title}
         </Text>
-        <Avatar
-          src={info.profilePicturePath}
-          sx={{ ml: "auto" }}
-          onClick={handleMenuOpen}
-        />
+        <Avatar src={avatarSrc} sx={{ ml: "auto" }} onClick={handleMenuOpen} />
         <Menu
           anchorEl={anchorEl}
           anchorOrigin={{

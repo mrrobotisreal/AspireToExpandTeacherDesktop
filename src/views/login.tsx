@@ -15,13 +15,8 @@ import Text from "./text/text";
 const Login: FC = () => {
   const intl = useIntl();
   const navigate = useNavigate();
-  const {
-    theme,
-    toggleThemeMode,
-    changeFontStyle,
-    regularFont,
-    heavyFont,
-  } = useThemeContext();
+  const { theme, toggleThemeMode, changeFontStyle, regularFont, heavyFont } =
+    useThemeContext();
   const { getInfo, updateInfo } = useTeacherContext();
   const { changeLocale } = useMessagesContext();
   const [isLoading, setIsLoading] = useState(false);
@@ -40,15 +35,18 @@ const Login: FC = () => {
         const salt = window.electronAPI.getSalt();
         const hashedPassword = bcrypt.hashSync(password, salt);
         const shortenedHash = hashedPassword.slice(0, 32);
-        const response = await fetch(`${MAIN_SERVER_URL}/teachers/validate/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json; charset=UTF-8" },
-          body: JSON.stringify({
-            teacherID,
-            email_address: emailAddress,
-            password: shortenedHash,
-          }),
-        });
+        const response = await fetch(
+          `${MAIN_SERVER_URL}/teachers/validate/login`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json; charset=UTF-8" },
+            body: JSON.stringify({
+              teacherID,
+              email_address: emailAddress,
+              password: shortenedHash,
+            }),
+          }
+        );
 
         if (response.status === 200) {
           const body = await response.json();
@@ -63,6 +61,7 @@ const Login: FC = () => {
             preferredLanguage: body.preferred_language,
             themeMode: body.theme_mode,
             fontStyle: body.font_style,
+            profilePictureURL: body.profile_picture_url,
             profilePicturePath: body.profile_picture_path,
             timeZone: body.time_zone,
           });
@@ -133,86 +132,93 @@ const Login: FC = () => {
         {intl.formatMessage({ id: "appTitle" })}!
       </Text>
       <br />
-        <Stack direction="column" alignContent="space-evenly" spacing={4}>
-          <div>
-            <Text variant="body1" fontWeight="bold" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({ id: "welcomeScreen_inputTeacherID" })}:
-            </Text>
-            <TextField
-              fullWidth
-              variant="outlined"
-              label={
-                <Text
-                  variant="body1"
-                  fontFamily={regularFont}
-                  color="textPrimary"
-                >
-                  {intl.formatMessage({ id: "common_teacherID" })}
-                </Text>
-              }
-              value={teacherID}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTeacherID(event.target.value)}
-              color="secondary"
-            />
-          </div>
-          <div>
-            <Text
-              variant="body1"
-              fontWeight="bold"
-              fontFamily={regularFont}
-              color="textPrimary"
-            >
-              {intl.formatMessage({ id: "welcomeScreen_inputEmail" })}:
-            </Text>
-            <TextField
-              fullWidth
-              variant="outlined"
-              label={
-                <Text
-                  variant="body1"
-                  fontFamily={regularFont}
-                  color="textPrimary"
-                >
-                  {intl.formatMessage({ id: "common_emailAddress" })}
-                </Text>
-              }
-              value={emailAddress}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                setEmailAddress(event.target.value)
-              }
-              color="secondary"
-            />
-          </div>
-          <div>
-            <Text
-              variant="body1"
-              fontWeight="bold"
-              fontFamily={regularFont}
-              color="textPrimary"
-            >
-              {intl.formatMessage({ id: "welcomeScreen_inputPassword" })}:
-            </Text>
-            <TextField
-              fullWidth
-              variant="outlined"
-              label={
-                <Text
-                  variant="body1"
-                  fontFamily={regularFont}
-                  color="textPrimary"
-                >
-                  {intl.formatMessage({ id: "common_passwordTitle" })}
-                </Text>
-              }
-              type="password"
-              value={password}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                setPassword(event.target.value)
-              }
-              color="secondary"
-            />
-          </div>
-        </Stack>
+      <Stack direction="column" alignContent="space-evenly" spacing={4}>
+        <div>
+          <Text
+            variant="body1"
+            fontWeight="bold"
+            fontFamily={regularFont}
+            color="textPrimary"
+          >
+            {intl.formatMessage({ id: "welcomeScreen_inputTeacherID" })}:
+          </Text>
+          <TextField
+            fullWidth
+            variant="outlined"
+            label={
+              <Text
+                variant="body1"
+                fontFamily={regularFont}
+                color="textPrimary"
+              >
+                {intl.formatMessage({ id: "common_teacherID" })}
+              </Text>
+            }
+            value={teacherID}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              setTeacherID(event.target.value)
+            }
+            color="secondary"
+          />
+        </div>
+        <div>
+          <Text
+            variant="body1"
+            fontWeight="bold"
+            fontFamily={regularFont}
+            color="textPrimary"
+          >
+            {intl.formatMessage({ id: "welcomeScreen_inputEmail" })}:
+          </Text>
+          <TextField
+            fullWidth
+            variant="outlined"
+            label={
+              <Text
+                variant="body1"
+                fontFamily={regularFont}
+                color="textPrimary"
+              >
+                {intl.formatMessage({ id: "common_emailAddress" })}
+              </Text>
+            }
+            value={emailAddress}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              setEmailAddress(event.target.value)
+            }
+            color="secondary"
+          />
+        </div>
+        <div>
+          <Text
+            variant="body1"
+            fontWeight="bold"
+            fontFamily={regularFont}
+            color="textPrimary"
+          >
+            {intl.formatMessage({ id: "welcomeScreen_inputPassword" })}:
+          </Text>
+          <TextField
+            fullWidth
+            variant="outlined"
+            label={
+              <Text
+                variant="body1"
+                fontFamily={regularFont}
+                color="textPrimary"
+              >
+                {intl.formatMessage({ id: "common_passwordTitle" })}
+              </Text>
+            }
+            type="password"
+            value={password}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              setPassword(event.target.value)
+            }
+            color="secondary"
+          />
+        </div>
+      </Stack>
       <br />
       <Box
         sx={{

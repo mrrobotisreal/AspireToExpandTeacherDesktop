@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
+import fs from "fs";
 import WebSocket from "ws";
 import "dotenv/config";
 
@@ -107,6 +108,11 @@ function createWindow(): void {
       // @ts-ignore
       return result.filePaths[0];
     }
+  });
+  ipcMain.handle("read-file", async (_, filePath: string) => {
+    const fileBuffer = fs.readFileSync(filePath);
+
+    return fileBuffer;
   });
 }
 
