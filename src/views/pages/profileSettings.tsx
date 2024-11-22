@@ -14,6 +14,7 @@ import { useIntl } from "react-intl";
 import { useTeacherContext } from "../../context/teacherContext";
 import { useMessagesContext } from "../../context/messagesContext";
 import { useThemeContext } from "../../context/themeContext";
+import useUploadImage from "../../hooks/useUploadImage";
 import Layout from "../layout/layout";
 import Text from "../text/text";
 import Toast from "../alerts/toast";
@@ -59,7 +60,7 @@ const ProfileSettings: FC = () => {
         return;
       }
 
-      if (!info.studentId || info.studentId === "") {
+      if (!info.teacherID || info.teacherID === "") {
         console.error("Student ID is required to upload image");
         return;
       }
@@ -68,7 +69,7 @@ const ProfileSettings: FC = () => {
         const uploadedImage = await uploadImage(
           filePath,
           fileExtension,
-          info.studentId
+          info.teacherID
         );
 
         if (uploadedImage) {
