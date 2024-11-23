@@ -23,6 +23,7 @@
   "chat_dialogContent_selectUser": "Select a user to chat with:",
   "chat_dialogTitle": "Start a new chat",
   "chat_messagePlaceholder": "Type a message...",
+  "chat_noChatsAvailable": "No chats available. Click \"+\" to start a new chat.",
   "chat_recentChats": "Recent chats",
   "classroom_callSettings": "Call settings",
   "classroom_startCall": "Start call",

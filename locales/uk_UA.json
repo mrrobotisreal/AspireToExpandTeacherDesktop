@@ -23,6 +23,7 @@
   "chat_dialogContent_selectUser": "Виберіть користувача для чату:",
   "chat_dialogTitle": "Почніть новий чат",
   "chat_messagePlaceholder": "Введіть повідомлення...",
+  "chat_noChatsAvailable": "Чати недоступні. Натисніть \"+\", щоб почати новий чат.",
   "chat_recentChats": "Останні чати",
   "classroom_callSettings": "Налаштування викликів",
   "classroom_startCall": "Розпочати виклик",

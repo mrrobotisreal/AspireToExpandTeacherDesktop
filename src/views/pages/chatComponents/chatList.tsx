@@ -49,7 +49,7 @@ const ChatList: FC<ChatListProps> = ({
     >
       <Box
         sx={{
-          backgroundColor: theme.palette.primary.main,
+          backgroundColor: theme.palette.primary.dark,
           borderTopLeftRadius: "6px",
           borderTopRightRadius: "6px",
         }}
@@ -59,6 +59,7 @@ const ChatList: FC<ChatListProps> = ({
           fontFamily={regularFont}
           fontWeight="bold"
           textAlign="center"
+          sx={{ color: theme.palette.primary.contrastText }}
         >
           {intl.formatMessage({ id: "chat_recentChats" })}
         </Text>
@@ -72,15 +73,48 @@ const ChatList: FC<ChatListProps> = ({
           borderRight: `1px solid ${themeCustom.palette.border.main}`,
           borderLeft: `1px solid ${themeCustom.palette.border.main}`,
           height: "74vh",
-          display: chatsAreLoading ? "flex" : "block",
-          justifyContent: chatsAreLoading ? "center" : "normal",
-          alignContent: chatsAreLoading ? "center" : "normal",
+          display:
+            chatsAreLoading || (!chatsAreLoading && !chats?.length)
+              ? "flex"
+              : "block",
+          justifyContent:
+            chatsAreLoading || (!chatsAreLoading && !chats?.length)
+              ? "center"
+              : "normal",
+          alignContent:
+            chatsAreLoading || (!chatsAreLoading && !chats?.length)
+              ? "center"
+              : "normal",
         }}
       >
         {chatsAreLoading && <CircularLoading />}
+        {!chatsAreLoading && !chats?.length && (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              alignContent: "center",
+              alignSelf: "center",
+              height: "100%",
+              padding: 2,
+            }}
+          >
+            <Text
+              variant="body1"
+              fontFamily={regularFont}
+              color="textSecondary"
+              textAlign="center"
+              flexWrap="wrap"
+            >
+              {intl.formatMessage({ id: "chat_noChatsAvailable" })}
+            </Text>
+          </Box>
+        )}
         {!chatsAreLoading && (
           <List>
-            {chats.map((chat) => {
+            {chats?.map((chat) => {
               return (
                 <Box key={chat.chatID}>
                   <ListItemButton
@@ -133,7 +167,14 @@ const ChatList: FC<ChatListProps> = ({
       >
         <Tooltip title="Search chats" placement="top" arrow>
           <IconButton>
-            <FindInPage sx={{ color: theme.palette.secondary.light }} />
+            <FindInPage
+              sx={{
+                color:
+                  chatsAreLoading || (!chatsAreLoading && !chats.length)
+                    ? "InactiveCaptionText"
+                    : theme.palette.secondary.light,
+              }}
+            />
           </IconButton>
         </Tooltip>
         <Tooltip title="Create new chat" placement="top" arrow>

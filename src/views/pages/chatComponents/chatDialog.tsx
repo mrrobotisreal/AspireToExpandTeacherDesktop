@@ -12,7 +12,7 @@ import {
   TextField,
 } from "@mui/material";
 
-import { useChatContext } from "../../../context/chatContext";
+import { useChatContext, Student } from "../../../context/chatContext";
 import { useThemeContext } from "../../../context/themeContext";
 import CircularLoading from "../../loading/circular";
 import Text from "../../text/text";
@@ -20,18 +20,21 @@ import Text from "../../text/text";
 interface ChatDialogProps {
   isStartNewChatOpen: boolean;
   handleCloseStartNewChat: () => void;
+  handleStartNewChat: (name: string, toID: string) => void;
 }
 
 const ChatDialog: FC<ChatDialogProps> = ({
   isStartNewChatOpen,
   handleCloseStartNewChat,
+  handleStartNewChat,
 }) => {
   const intl = useIntl();
-  const { theme, themeCustom, regularFont, heavyFont } = useThemeContext();
+  const { theme, regularFont, heavyFont } = useThemeContext();
   const { studentsAreLoading, fetchAllStudents } = useChatContext();
   const [isStartNewChatAutocompleteOpen, setIsStartNewChatAutocompleteOpen] =
     useState<boolean>(false);
-  const [allStudents, setAllStudents] = useState<string[]>([]);
+  const [allStudents, setAllStudents] = useState<Student[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
   const handleOpenStartNewChatAutocomplete = async () => {
     setIsStartNewChatAutocompleteOpen(true);
@@ -66,8 +69,12 @@ const ChatDialog: FC<ChatDialogProps> = ({
           open={isStartNewChatAutocompleteOpen}
           onOpen={handleOpenStartNewChatAutocomplete}
           onClose={handleCloseStartNewChatAutocomplete}
+          value={selectedStudent}
+          onChange={(event: any, newValue: Student | null) =>
+            setSelectedStudent(newValue)
+          }
           isOptionEqualToValue={(option, value) => option === value}
-          getOptionLabel={(option: string) => option}
+          getOptionLabel={(option: Student) => option.preferredname}
           options={allStudents}
           loading={studentsAreLoading}
           renderInput={(params) => (
@@ -107,9 +114,15 @@ const ChatDialog: FC<ChatDialogProps> = ({
           </Text>
         </Button>
         <Button
-          onClick={handleCloseStartNewChat}
+          onClick={() =>
+            handleStartNewChat(
+              selectedStudent?.preferredname!,
+              selectedStudent?.studentid!
+            )
+          }
           variant="contained"
           color="secondary"
+          disabled={!selectedStudent}
         >
           <Text variant="button" fontFamily={regularFont} color="textPrimary">
             {intl.formatMessage({ id: "chat_dialogAction_start" })}

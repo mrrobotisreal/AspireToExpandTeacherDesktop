@@ -31,7 +31,7 @@ const TopNav: FC<TopNavProps> = ({ handleDrawerOpen, title }) => {
   const intl = useIntl();
   const navigate = useNavigate();
   const { info, removeInfo } = useTeacherContext();
-  const { regularFont, heavyFont } = useThemeContext();
+  const { theme, regularFont, heavyFont } = useThemeContext();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   let avatarSrc = "";
 
@@ -51,13 +51,8 @@ const TopNav: FC<TopNavProps> = ({ handleDrawerOpen, title }) => {
   return (
     <AppBar color="primary" position="fixed">
       <Toolbar variant="dense">
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          onClick={handleDrawerOpen}
-        >
-          <MenuIcon />
+        <IconButton edge="start" aria-label="menu" onClick={handleDrawerOpen}>
+          <MenuIcon sx={{ color: theme.palette.text.primary }} />
         </IconButton>
         <Text
           variant="h5"

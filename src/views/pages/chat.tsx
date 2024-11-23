@@ -2,7 +2,7 @@ import React, { FC, useEffect, useState, useMemo } from "react";
 import { useIntl } from "react-intl";
 import { Grid } from "@mui/material";
 
-import { useChatContext, Chat } from "../../context/chatContext";
+import { useChatContext, Chat, createChatID } from "../../context/chatContext";
 import { useTeacherContext } from "../../context/teacherContext";
 import Layout from "../layout/layout";
 
@@ -14,7 +14,7 @@ const Chat: FC = () => {
   const intl = useIntl();
   const { info, getInfo, updateInfo } = useTeacherContext();
   const {
-    chats: _chats,
+    chats,
     chatsAreLoading,
     fetchChats,
     messages: _messages,
@@ -22,9 +22,11 @@ const Chat: FC = () => {
     fetchMessages,
     sendMessage,
   } = useChatContext();
-  const chats = useMemo(() => _chats, [_chats]);
   const messages = useMemo(() => _messages, [_messages]);
+  const [allChats, setAllChats] = useState<Chat[]>([]);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [name, setName] = useState<string>("");
+  const [toID, setToID] = useState<string>("");
   const [textMessage, setTextMessage] = useState<string>("");
   const [isStartNewChatOpen, setIsStartNewChatOpen] = useState<boolean>(false);
 
@@ -33,7 +35,7 @@ const Chat: FC = () => {
   };
 
   const getNameAndID = () => {
-    if (selectedChat && chats.length) {
+    if (selectedChat && allChats.length) {
       const chat = chats.find((chat) => chat.chatID === selectedChat)!;
       return {
         name:
@@ -52,7 +54,6 @@ const Chat: FC = () => {
       };
     }
   };
-  const { name, toID } = getNameAndID();
 
   const handleTextMessageChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -80,6 +81,29 @@ const Chat: FC = () => {
 
   const handleOpenStartNewChat = () => setIsStartNewChatOpen(true);
   const handleCloseStartNewChat = () => setIsStartNewChatOpen(false);
+  const handleStartNewChat = (name: string, toID: string) => {
+    setName(name);
+    setToID(toID);
+    const chatID = createChatID(info.teacherID!, toID);
+    setSelectedChat(chatID);
+    setAllChats([
+      {
+        chatID,
+        to: name,
+        toID,
+        mostRecentMessage: {
+          from: info.preferredName!,
+          fromID: info.teacherID!,
+          to: name,
+          toID,
+          content: "",
+          time: Date.now(),
+        },
+      },
+      ...allChats,
+    ]);
+    handleCloseStartNewChat();
+  };
 
   useEffect(() => {
     const storedStudentInfo = getInfo();
@@ -97,14 +121,19 @@ const Chat: FC = () => {
     } else if (info.teacherID) {
       fetchChats(info.teacherID!);
     }
+    getNameAndID();
   }, [info, selectedChat]);
+
+  useEffect(() => {
+    setAllChats(chats);
+  }, [chats]);
 
   return (
     <Layout title={intl.formatMessage({ id: "common_chat" })}>
       <Grid container sx={{ height: "84vh" }}>
         <Grid item xs={4} md={3}>
           <ChatList
-            chats={chats}
+            chats={allChats}
             chatsAreLoading={chatsAreLoading}
             onChatSelect={handleChatSelect}
             selectedChat={selectedChat}
@@ -128,6 +157,7 @@ const Chat: FC = () => {
       <ChatDialog
         isStartNewChatOpen={isStartNewChatOpen}
         handleCloseStartNewChat={handleCloseStartNewChat}
+        handleStartNewChat={handleStartNewChat}
       />
     </Layout>
   );

@@ -23,6 +23,7 @@
   "chat_dialogContent_selectUser": "Выберите пользователя для общения:",
   "chat_dialogTitle": "Начать новый чат",
   "chat_messagePlaceholder": "Введите сообщение...",
+  "chat_noChatsAvailable": "Нет доступных чатов. Нажмите \"+\", чтобы начать новый чат.",
   "chat_recentChats": "Недавние чаты",
   "classroom_callSettings": "Настройки вызова",
   "classroom_startCall": "Начать звонок",

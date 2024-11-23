@@ -14,8 +14,18 @@ export type ThemeMode = "light" | "dark";
 interface ThemeCustom {
   palette: {
     mode: ThemeMode;
-    primary: { main: string; dark?: string; light?: string };
-    secondary: { main: string; dark?: string; light?: string };
+    primary: {
+      main: string;
+      dark?: string;
+      light?: string;
+      contrastText?: string;
+    };
+    secondary: {
+      main: string;
+      dark?: string;
+      light?: string;
+      contrastText?: string;
+    };
     background: { main: string; border: string };
     border: { main: string; dark?: string; light?: string };
   };
@@ -45,9 +55,19 @@ const lightTheme = createTheme({
   palette: {
     mode: "light",
     common: { black: "#000", white: "#fff" },
-    primary: { main: "#2ec4b6", light: "#cbf3f0", dark: "#006D77" },
-    // secondary: { main: "#ff9f1c", light: "#ffbf69", dark: "#78290f" },
-    secondary: { main: "#ff9f1c", light: "#fad621", dark: "#78290f" },
+    primary: {
+      main: "#2ec4b6",
+      light: "#cbf3f0",
+      dark: "#006D77",
+      contrastText: "#ffffff",
+    },
+    // secondary: { main: "#ff9f1c", light: "#ffbf69", dark: "#78290f", contrastText: "#ffffff" },
+    secondary: {
+      main: "#ff9f1c",
+      light: "#fad621",
+      dark: "#78290f",
+      contrastText: "#ffffff",
+    },
     text: { primary: "#001524", secondary: "#264653" },
     background: { default: "#fff", paper: "#f7f7f7" },
   },
@@ -56,8 +76,18 @@ const lightTheme = createTheme({
 const lightThemeCustom: ThemeCustom = {
   palette: {
     mode: "light",
-    primary: { main: "#2ec4b6", light: "#cbf3f0", dark: "#006D77" },
-    secondary: { main: "#ff9f1c", light: "#fad621", dark: "#78290f" },
+    primary: {
+      main: "#2ec4b6",
+      light: "#cbf3f0",
+      dark: "#006D77",
+      contrastText: "#ffffff",
+    },
+    secondary: {
+      main: "#ff9f1c",
+      light: "#fad621",
+      dark: "#78290f",
+      contrastText: "#ffffff",
+    },
     background: { main: "#f7f7f7", border: "#ddd" },
     border: { main: "#ddd", light: "#f7f7f7", dark: "#333" },
   },

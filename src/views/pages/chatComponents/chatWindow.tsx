@@ -35,11 +35,12 @@ const ChatWindow: FC<ChatWindowProps> = ({
   const intl = useIntl();
   const { theme, regularFont } = useThemeContext();
   const { info } = useTeacherContext();
+  const allMessages = messages || [];
   const messagesComponents = messagesAreLoading ? (
     <CircularLoading />
   ) : (
     <>
-      {messages.map((msg, index) => {
+      {allMessages.map((msg, index) => {
         const date = new Date(msg.time);
         return (
           <Box
@@ -87,7 +88,7 @@ const ChatWindow: FC<ChatWindowProps> = ({
     <Box sx={{ pl: 2, pt: 1, pb: 1 }}>
       <Box
         sx={{
-          backgroundColor: theme.palette.primary.main,
+          backgroundColor: theme.palette.primary.dark,
           borderTopLeftRadius: "6px",
           borderTopRightRadius: "6px",
         }}
@@ -97,8 +98,9 @@ const ChatWindow: FC<ChatWindowProps> = ({
           fontFamily={regularFont}
           fontWeight="bold"
           textAlign="center"
+          sx={{ color: theme.palette.primary.contrastText }}
         >
-          {intl.formatMessage({ id: "chat_recentChats" })}
+          {name || intl.formatMessage({ id: "chat_recentChats" })}
         </Text>
       </Box>
       <Paper
@@ -114,7 +116,7 @@ const ChatWindow: FC<ChatWindowProps> = ({
           alignContent: messagesAreLoading ? "center" : "normal",
         }}
       >
-        {messages.length ? (
+        {allMessages.length ? (
           messagesComponents
         ) : (
           <Text fontFamily={regularFont} color="textSecondary" align="center">
@@ -134,7 +136,13 @@ const ChatWindow: FC<ChatWindowProps> = ({
         }}
       >
         <IconButton disabled={!chatIsSelected} onClick={handleClickAttach}>
-          <AttachFileTwoTone sx={{ color: theme.palette.secondary.light }} />
+          <AttachFileTwoTone
+            sx={{
+              color: !chatIsSelected
+                ? "InactiveCaptionText"
+                : theme.palette.secondary.light,
+            }}
+          />
         </IconButton>
         <TextField
           variant="outlined"
