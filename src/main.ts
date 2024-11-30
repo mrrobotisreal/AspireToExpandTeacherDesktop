@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from "electron";
+import { app, BrowserWindow, ipcMain, dialog, desktopCapturer } from "electron";
 import path from "path";
 import fs from "fs";
 import WebSocket from "ws";
@@ -131,6 +131,17 @@ function createWindow(): void {
     console.log("Key pair successfully created!");
     return { privateKey, publicKey };
   });
+  ipcMain.handle(
+    "get-media-sources",
+    async (_): Promise<Electron.DesktopCapturerSource[]> => {
+      const inputSources = await desktopCapturer.getSources({
+        types: ["window", "screen"],
+        thumbnailSize: { width: 300, height: 300 },
+        fetchWindowIcons: true,
+      });
+      return inputSources;
+    }
+  );
 }
 
 app.whenReady().then(() => createWindow());

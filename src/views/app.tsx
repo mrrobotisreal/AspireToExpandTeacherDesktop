@@ -10,6 +10,7 @@ import { useMessagesContext } from "../context/messagesContext";
 
 import Login from "./login";
 import Chat from "./pages/chat";
+import _Classroom from "./pages/_classroom"; // FOR TESTING PURPOSES ONLY
 import Classroom from "./pages/classroom";
 import Home from "./pages/home";
 import ProfileSettings from "./pages/profileSettings";

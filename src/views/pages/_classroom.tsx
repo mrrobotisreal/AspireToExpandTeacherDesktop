@@ -1,36 +1,100 @@
-import React, { FC, useState, useRef, useEffect } from "react";
+/**
+ * THIS FILE IS FOR TESTING PURPOSES ONLY
+ */
+import {
+  FC,
+  RefObject,
+  useCallback,
+  useRef,
+  useState,
+  useMemo,
+  useEffect,
+} from "react";
 import { useIntl } from "react-intl";
 
-import { VIDEO_SERVER_URL } from "../../constants/urls";
 import { useTeacherContext } from "../../context/teacherContext";
-import useClassroomSocket from "../../hooks/useClassroomSocket";
 import Layout from "../layout/layout";
+import useClassroom from "../../hooks/useClassroom";
 
-import Controls from "./classroomComponents/controls";
-import ScreenShareDialog from "./classroomComponents/screenShareDialog";
-import Videos from "./classroomComponents/videos";
-
-const url = `${VIDEO_SERVER_URL}/?type=teacher&room=123`;
+import Controls from "./classroomComponents/_controls";
+import Videos, { VideoRefObject } from "./classroomComponents/_videos";
 
 const Classroom: FC = () => {
   const intl = useIntl();
-  const { getInfo, updateInfo } = useTeacherContext();
-  const { sendMessage, peerConnection } = useClassroomSocket({
-    url,
-  });
-  peerConnection.onicecandidate = (event) => {
-    if (event.candidate) {
-      sendMessage(JSON.stringify({ type: "candidate", data: event.candidate }));
-    }
-  };
-  peerConnection.ontrack = (event) => {
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = event.streams[0];
-    }
-  };
-  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const { info, getInfo, updateInfo } = useTeacherContext();
   const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef2 = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef3 = useRef<HTMLVideoElement>(null);
   const localStream = useRef<MediaStream | null>(null);
+  const remoteStream = useRef<MediaStream | null>(null);
+  const remoteStream2 = useRef<MediaStream | null>(null);
+  const remoteStream3 = useRef<MediaStream | null>(null);
+  const [participants, setParticipants] = useState<VideoRefObject[]>([
+    {
+      id: info.teacherID || "",
+      label: info.preferredName || "",
+      ref: localVideoRef,
+    },
+  ]);
+  const addParticipant = useCallback<(id: string, stream: MediaStream) => void>(
+    (id, stream) => {
+      // const participantInfo = fetchStudentInfo(); // TODO: implement fetchStudentInfo
+      let label: string;
+      let newParticipantRef: RefObject<HTMLVideoElement>;
+
+      if (participants.length === 1) {
+        remoteStream.current = stream;
+        newParticipantRef = remoteVideoRef;
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = stream;
+        }
+        label = "Student 1";
+      } else if (participants.length === 2) {
+        remoteStream2.current = stream;
+        newParticipantRef = remoteVideoRef2;
+        if (remoteVideoRef2.current) {
+          remoteVideoRef2.current.srcObject = stream;
+        }
+        label = "Student 2";
+      } else if (participants.length === 3) {
+        remoteStream3.current = stream;
+        newParticipantRef = remoteVideoRef3;
+        if (remoteVideoRef3.current) {
+          remoteVideoRef3.current.srcObject = stream;
+        }
+        label = "Student 3";
+      }
+      setParticipants((prevParticipants) => [
+        ...prevParticipants,
+        {
+          id,
+          label,
+          ref: newParticipantRef,
+        },
+      ]);
+    },
+    [remoteVideoRef, remoteVideoRef2, remoteVideoRef3]
+  );
+  const removeParticipant = useCallback<(id: string) => void>((id) => {
+    setParticipants((prevParticipants) =>
+      prevParticipants.filter((participant) => participant.id !== id)
+    );
+  }, []);
+  const { peerConnections, sendMessage, broadcastOffer } = useClassroom({
+    addParticipant,
+    removeParticipant,
+    localStream: localStream.current,
+  });
+  console.log("peerConnections: ", peerConnections);
+  const peerConnectionsIDs = useMemo(
+    () => Object.keys(peerConnections),
+    [peerConnections]
+  );
+  const peerConnectionsList = useMemo(
+    () => Object.values(peerConnections),
+    [peerConnections]
+  );
   const [isMicOn, setIsMicOn] = useState(true);
   const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedAudioDeviceLabel, setSelectedAudioDeviceLabel] =
@@ -38,12 +102,6 @@ const Classroom: FC = () => {
   const [selectedAudioDeviceID, setSelectedAudioDeviceID] = useState("");
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
-  const [areScreenShareOptionsOpen, setAreScreenShareOptionsOpen] =
-    useState(false);
-  const [screenShareOptions, setScreenShareOptions] = useState<
-    Electron.DesktopCapturerSource[]
-  >([]);
-  const [isSharingScreen, setIsSharingScreen] = useState(false);
   const [selectedVideoDeviceLabel, setSelectedVideoDeviceLabel] =
     useState("Default");
   const [selectedVideoDeviceID, setSelectedVideoDeviceID] = useState("");
@@ -77,86 +135,6 @@ const Classroom: FC = () => {
       audioTrack.enabled = !audioTrack.enabled;
       setIsMicOn(audioTrack.enabled);
     }
-  };
-
-  const startScreenShare = async (source: Electron.DesktopCapturerSource) => {
-    try {
-      const videoConstraints: MediaTrackConstraints = {
-        // @ts-ignore
-        mandatory: {
-          chromeMediaSource: "desktop",
-          chromeMediaSourceId: source.id,
-        },
-      };
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: videoConstraints,
-      });
-      const videoTrack = stream.getVideoTracks()[0];
-
-      const senders = peerConnection.getSenders();
-      const videoSender = senders.find(
-        (sender) => sender.track?.kind === "video"
-      );
-
-      if (videoSender) {
-        videoSender.replaceTrack(videoTrack);
-      } else {
-        peerConnection.addTrack(videoTrack, stream);
-      }
-
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
-
-      videoTrack.onended = () => {
-        stopScreenShare();
-      };
-    } catch (error) {
-      console.error("Error starting screen share: ", error);
-    }
-  };
-  const stopScreenShare = async () => {
-    try {
-      const cameraStream = await navigator.mediaDevices.getUserMedia({
-        video: { deviceId: { exact: selectedVideoDeviceID } },
-        audio: { deviceId: { exact: selectedAudioDeviceID } },
-      });
-      const cameraTrack = cameraStream.getVideoTracks()[0];
-
-      const senders = peerConnection.getSenders();
-      const sender = senders.find((sender) => sender.track?.kind === "video");
-      if (sender) {
-        await sender.replaceTrack(cameraTrack);
-      }
-
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = cameraStream;
-      }
-    } catch (error) {
-      console.error("Error stopping screen share: ", error);
-    }
-  };
-
-  const handleOpenScreenShareOptions = async () => {
-    if (isSharingScreen) {
-      await stopScreenShare();
-      setIsSharingScreen(false);
-    } else {
-      const options = await window.electronAPI.getMediaSources();
-      setScreenShareOptions(options || []);
-      setAreScreenShareOptionsOpen(true);
-    }
-  };
-  const handleCloseScreenShareOptions = () => {
-    setAreScreenShareOptionsOpen(false);
-  };
-  const handleSelectScreenShareSource = async (
-    source: Electron.DesktopCapturerSource
-  ) => {
-    await startScreenShare(source);
-    setIsSharingScreen(true);
-    setAreScreenShareOptionsOpen(false);
   };
 
   const handleSelectVideoDevice = async (deviceId: string, label: string) => {
@@ -224,9 +202,6 @@ const Classroom: FC = () => {
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
       }
-      stream.getTracks().forEach((track) => {
-        peerConnection.addTrack(track, stream);
-      });
       setIsMicOn(true);
       setIsVideoOn(true);
       await fetchDevices();
@@ -235,15 +210,27 @@ const Classroom: FC = () => {
     }
   };
 
+  // const broadcastOffer = () => {
+  //   console.log("Broadcasting offer to all participants");
+  //   console.log("Participants: ", peerConnectionsIDs);
+  //   peerConnectionsIDs.forEach(async (ID) => {
+  //     console.log("Creating offer for participant: ", ID);
+  //     const offer = await peerConnections[ID].createOffer();
+  //     console.log(`Offer created for participant ${ID}: `, offer);
+  //     await peerConnections[ID].setLocalDescription(offer);
+  //     sendMessage(
+  //       JSON.stringify({
+  //         type: "offer",
+  //         target: ID,
+  //         data: offer,
+  //       })
+  //     );
+  //   });
+  // };
+
   useEffect(() => {
     startMedia();
   }, []);
-
-  async function broadcastOffer() {
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-    sendMessage(JSON.stringify({ type: "offer", data: offer }));
-  }
 
   useEffect(() => {
     const storedStudentInfo = getInfo();
@@ -257,31 +244,23 @@ const Classroom: FC = () => {
 
   return (
     <Layout title={intl.formatMessage({ id: "common_classroom" })}>
-      <Videos localVideoRef={localVideoRef} remoteVideoRef={remoteVideoRef} />
+      <Videos participants={participants} />
       <Controls
+        isMicOn={isMicOn}
+        isVideoOn={isVideoOn}
+        audioDevices={audioDevices}
+        videoDevices={videoDevices}
+        selectedAudioDeviceLabel={selectedAudioDeviceLabel}
+        selectedVideoDeviceLabel={selectedVideoDeviceLabel}
+        handleSelectAudioDevice={handleSelectAudioDevice}
+        handleSelectVideoDevice={handleSelectVideoDevice}
+        toggleAudio={toggleAudio}
+        toggleVideo={toggleVideo}
         handleOpenCallSettingsMenu={handleOpenCallSettingsMenu}
         handleCloseCallSettingsMenu={handleCloseCallSettingsMenu}
         callSettingsAnchorEl={callSettingsAnchorEl}
         callSettingsMenuIsOpen={callSettingsMenuIsOpen}
-        handleSelectVideoDevice={handleSelectVideoDevice}
-        toggleVideo={toggleVideo}
-        isVideoOn={isVideoOn}
-        videoDevices={videoDevices}
-        selectedVideoDeviceLabel={selectedVideoDeviceLabel}
-        handleSelectAudioDevice={handleSelectAudioDevice}
-        toggleAudio={toggleAudio}
-        isMicOn={isMicOn}
-        audioDevices={audioDevices}
-        selectedAudioDeviceLabel={selectedAudioDeviceLabel}
-        handleOpenScreenShareOptions={handleOpenScreenShareOptions}
-        isSharingScreen={isSharingScreen}
         broadcastOffer={broadcastOffer}
-      />
-      <ScreenShareDialog
-        areScreenShareOptionsOpen={areScreenShareOptionsOpen}
-        handleCloseScreenShareOptions={handleCloseScreenShareOptions}
-        screenShareOptions={screenShareOptions}
-        handleSelectScreenShareSource={handleSelectScreenShareSource}
       />
     </Layout>
   );

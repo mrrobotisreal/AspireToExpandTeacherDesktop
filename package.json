@@ -4,22 +4,45 @@
   "description": "The teacher version of the AspireWithAlina Desktop app",
   "main": "dist/main.js",
   "build": {
-    "appId": "com.iamwintrow.aspirewithalinateacherdesktop",
+    "appId": "io.winapps.aspirewithalina.teacher.desktop",
+    "productName": "Aspire With Alina (Teacher Desktop)",
     "directories": {
-      "output": "dist"
+      "output": "build",
+      "buildResources": "build"
     },
     "files": [
+      ".env",
+      "build/**/*",
       "dist/**/*",
-      "index.html"
+      "index.html",
+      "locales/**/*",
+      "node_modules/**/*",
+      "package.json"
     ],
     "mac": {
-      "target": "dmg"
+      "icon": "build/assets/icons/mac/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "win": {
-      "target": "nsis"
+      "icon": "build/assets/icons/windows/icon.ico",
+      "target": [
+        "nsis",
+        "zip",
+        "portable",
+        "msi"
+      ]
     },
     "linux": {
-      "target": "AppImage"
+      "icon": "build/assets/icons/linux",
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm",
+        "tar.gz"
+      ]
     }
   },
   "scripts": {
@@ -31,7 +54,10 @@
     "wstart": "cross-env NODE_ENV=development tsc && electron .",
     "wstart-node": "cross-env NODE_ENV=development tsc -p tsconfig.node.json && electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux"
   },
   "author": "Mitchell Wintrow",
   "license": "ISC",
@@ -68,6 +94,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-intl": "^7.0.1",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^6.28.0",
+    "ws": "^8.18.0"
   }
 }

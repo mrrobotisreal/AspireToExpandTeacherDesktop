@@ -27,6 +27,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   onNewMessage: (callback: (message: any) => void) =>
     ipcRenderer.on("new-message", (_, message) => callback(message)),
   selectChatAttachment: () => ipcRenderer.invoke("select-chat-attachment"),
+  getMediaSources: () => ipcRenderer.invoke("get-media-sources"),
 });
 
 window.addEventListener("DOMContentLoaded", () => {

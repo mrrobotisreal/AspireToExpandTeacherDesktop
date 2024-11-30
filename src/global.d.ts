@@ -20,10 +20,18 @@ export interface ElectronAPI {
   }) => void;
   onNewMessage: (callback: (message: any) => void) => void;
   selectChatAttachment: () => Promise<string>;
+  getMediaSources: () => Promise<Electron.DesktopCapturerSource[]>;
 }
 
 declare global {
   interface Window {
     electronAPI: ElectronAPI;
   }
+}
+
+interface MediaTrackConstraints {
+  mandatory?: {
+    chromeMediaSource?: string;
+    chromeMediaSourceId?: string;
+  };
 }
