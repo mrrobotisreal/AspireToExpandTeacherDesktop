@@ -27,10 +27,17 @@ const Classroom: FC = () => {
     if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = event.streams[0];
     }
+    setIsRemoteStreamActive(true);
+  };
+  peerConnection.onconnectionstatechange = () => {
+    if (peerConnection.connectionState === "disconnected") {
+      setIsRemoteStreamActive(false);
+    }
   };
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const localStream = useRef<MediaStream | null>(null);
+  const [isRemoteStreamActive, setIsRemoteStreamActive] = useState(false);
   const [isMicOn, setIsMicOn] = useState(true);
   const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedAudioDeviceLabel, setSelectedAudioDeviceLabel] =
@@ -50,6 +57,7 @@ const Classroom: FC = () => {
   const [callSettingsAnchorEl, setCallSettingsAnchorEl] =
     useState<null | HTMLElement>(null);
   const [callSettingsMenuIsOpen, setCallSettingsMenuIsOpen] = useState(false);
+  const [isCallStarted, setIsCallStarted] = useState(false);
 
   const handleOpenCallSettingsMenu = (
     event: React.MouseEvent<HTMLButtonElement>
@@ -240,9 +248,21 @@ const Classroom: FC = () => {
   }, []);
 
   async function broadcastOffer() {
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-    sendMessage(JSON.stringify({ type: "offer", data: offer }));
+    if (!peerConnection) {
+      return;
+    }
+
+    if (isCallStarted) {
+      peerConnection.close();
+      setIsCallStarted(false);
+      setIsRemoteStreamActive(false);
+      // TODO: send signal that the call is ended for other participants
+    } else {
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      sendMessage(JSON.stringify({ type: "offer", data: offer }));
+      setIsCallStarted(true);
+    }
   }
 
   useEffect(() => {
@@ -257,8 +277,13 @@ const Classroom: FC = () => {
 
   return (
     <Layout title={intl.formatMessage({ id: "common_classroom" })}>
-      <Videos localVideoRef={localVideoRef} remoteVideoRef={remoteVideoRef} />
+      <Videos
+        localVideoRef={localVideoRef}
+        remoteVideoRef={remoteVideoRef}
+        isRemoteStreamActive={isRemoteStreamActive}
+      />
       <Controls
+        isCallStarted={isCallStarted}
         handleOpenCallSettingsMenu={handleOpenCallSettingsMenu}
         handleCloseCallSettingsMenu={handleCloseCallSettingsMenu}
         callSettingsAnchorEl={callSettingsAnchorEl}

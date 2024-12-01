@@ -26,6 +26,8 @@
   "chat_noChatsAvailable": "No chats available. Click \"+\" to start a new chat.",
   "chat_recentChats": "Recent chats",
   "classroom_callSettings": "Call settings",
+  "classroom_endCall": "End call",
+  "classroom_screenShareDialogTitle": "Select which screen or window you'd like to share",
   "classroom_startCall": "Start call",
   "common_account": "Account",
   "common_audio": "Audio",

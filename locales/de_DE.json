@@ -26,6 +26,8 @@
   "chat_noChatsAvailable": "Keine Chats verfügbar. Klicken Sie auf \"+\", um einen neuen Chat zu starten.",
   "chat_recentChats": "Letzte Chats",
   "classroom_callSettings": "Anrufeinstellungen",
+  "classroom_endCall": "Anruf beenden",
+  "classroom_screenShareDialogTitle": "Wählen Sie den Bildschirm oder das Fenster aus, das Sie freigeben möchten",
   "classroom_startCall": "Anruf starten",
   "common_account": "Account",
   "common_audio": "Audio",

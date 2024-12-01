@@ -26,6 +26,8 @@
   "chat_noChatsAvailable": "Чати недоступні. Натисніть \"+\", щоб почати новий чат.",
   "chat_recentChats": "Останні чати",
   "classroom_callSettings": "Налаштування викликів",
+  "classroom_endCall": "Завершити дзвінок",
+  "classroom_screenShareDialogTitle": "Виберіть екран або вікно, яким ви хочете поділитися",
   "classroom_startCall": "Розпочати виклик",
   "common_account": "Обліковий запис",
   "common_audio": "Аудіо",

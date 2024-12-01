@@ -24,6 +24,7 @@ import { useThemeContext } from "../../../context/themeContext";
 import Text from "../../text/text";
 
 interface ControlsProps {
+  isCallStarted: boolean;
   handleOpenCallSettingsMenu: (
     event: React.MouseEvent<HTMLButtonElement>
   ) => void;
@@ -46,6 +47,7 @@ interface ControlsProps {
 }
 
 const Controls: FC<ControlsProps> = ({
+  isCallStarted,
   handleOpenCallSettingsMenu,
   handleCloseCallSettingsMenu,
   callSettingsAnchorEl,
@@ -200,7 +202,9 @@ const Controls: FC<ControlsProps> = ({
           onClick={broadcastOffer}
         >
           <Text variant="button" fontFamily={regularFont} color="textPrimary">
-            {intl.formatMessage({ id: "classroom_startCall" })}
+            {isCallStarted
+              ? intl.formatMessage({ id: "classroom_endCall" })
+              : intl.formatMessage({ id: "classroom_startCall" })}
           </Text>
         </Button>
       </Stack>

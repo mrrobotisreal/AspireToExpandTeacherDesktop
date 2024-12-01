@@ -43,7 +43,7 @@ const ScreenShareDialog: FC<ScreenShareDialogProps> = ({
     >
       <DialogTitle sx={{ backgroundColor: theme.palette.primary.main }}>
         <Text variant="h6" fontFamily={heavyFont}>
-          Select which screen or window you'd like to share
+          {intl.formatMessage({ id: "classroom_screenShareDialogTitle" })}
         </Text>
       </DialogTitle>
       <DialogContent>
@@ -84,7 +84,7 @@ const ScreenShareDialog: FC<ScreenShareDialogProps> = ({
           color="secondary"
           onClick={handleCloseScreenShareOptions}
         >
-          Cancel
+          {intl.formatMessage({ id: "common_cancel" })}
         </Button>
       </DialogActions>
     </Dialog>
