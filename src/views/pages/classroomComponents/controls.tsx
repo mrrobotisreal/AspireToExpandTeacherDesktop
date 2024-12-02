@@ -12,6 +12,8 @@ import {
 } from "@mui/material";
 import {
   ExitToAppTwoTone,
+  FullscreenExitTwoTone,
+  FullscreenTwoTone,
   MicOffTwoTone,
   MicTwoTone,
   ScreenShareTwoTone,
@@ -47,6 +49,8 @@ interface ControlsProps {
   handleOpenScreenShareOptions: () => void;
   isSharingScreen: boolean;
   broadcastOffer: () => void;
+  isFullscreen: boolean;
+  toggleFullscreen: () => void;
 }
 
 const Controls: FC<ControlsProps> = ({
@@ -70,6 +74,8 @@ const Controls: FC<ControlsProps> = ({
   handleOpenScreenShareOptions,
   isSharingScreen,
   broadcastOffer,
+  isFullscreen,
+  toggleFullscreen,
 }) => {
   const intl = useIntl();
   const { theme, regularFont, heavyFont } = useThemeContext();
@@ -77,7 +83,21 @@ const Controls: FC<ControlsProps> = ({
   if (!isInClassroom) return null;
 
   return (
-    <Box padding={2}>
+    <Box
+      padding={2}
+      sx={{
+        position: isFullscreen ? "absolute" : "auto",
+        bottom: "10px",
+        left: isFullscreen ? "35%" : "auto",
+        display: "flex",
+        justifyContent: "center",
+        zIndex: 99999,
+        backgroundColor: theme.palette.background.default,
+        borderRadius: "6px",
+        overflow: "hidden",
+        transition: "bottom 0.3s ease",
+      }}
+    >
       <Stack direction="row" justifyContent="space-evenly">
         <IconButton
           id="call-settings-button"
@@ -197,6 +217,25 @@ const Controls: FC<ControlsProps> = ({
               />
             ) : (
               <ScreenShareTwoTone
+                fontSize="large"
+                sx={{ color: theme.palette.secondary.light }}
+              />
+            )}
+          </IconButton>
+        </Tooltip>
+        <Tooltip
+          title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          placement="top"
+          arrow
+        >
+          <IconButton size="large" onClick={toggleFullscreen}>
+            {isFullscreen ? (
+              <FullscreenExitTwoTone
+                fontSize="large"
+                sx={{ color: theme.palette.secondary.light }}
+              />
+            ) : (
+              <FullscreenTwoTone
                 fontSize="large"
                 sx={{ color: theme.palette.secondary.light }}
               />

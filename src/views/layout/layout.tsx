@@ -8,9 +8,10 @@ import SideNav from "../navigation/sideNav";
 interface LayoutProps {
   children: React.ReactNode;
   title: string;
+  isFullscreen?: boolean;
 }
 
-const Layout: FC<LayoutProps> = ({ children, title }) => {
+const Layout: FC<LayoutProps> = ({ children, title, isFullscreen = false }) => {
   const { theme } = useThemeContext();
   const [drawerIsOpen, setDrawerIsOpen] = useState(false);
 
@@ -37,15 +38,15 @@ const Layout: FC<LayoutProps> = ({ children, title }) => {
         sx={{
           flexGrow: 1,
           width: "100%",
-          paddingTop: "64px",
+          paddingTop: isFullscreen ? "0" : "64px",
           bgcolor: theme.palette.common.white,
           position: "relative",
         }}
       >
         <Box
           sx={{
-            overflowY: "auto",
-            height: "calc(100vh - 64px)",
+            overflowY: isFullscreen ? "hidden" : "auto",
+            height: isFullscreen ? "100vh" : "calc(100vh - 64px)",
             padding: 3,
           }}
         >

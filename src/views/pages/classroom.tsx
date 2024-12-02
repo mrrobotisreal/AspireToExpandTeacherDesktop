@@ -64,6 +64,7 @@ const Classroom: FC = () => {
   const [callSettingsMenuIsOpen, setCallSettingsMenuIsOpen] = useState(false);
   const [isCallStarted, setIsCallStarted] = useState(false);
   const [isInClassroom, setIsInClassroom] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handleOpenCallSettingsMenu = (
     event: React.MouseEvent<HTMLButtonElement>
@@ -287,6 +288,20 @@ const Classroom: FC = () => {
     // TODO: add other room logic here
   };
 
+  const handleEnterFullscreen = () => {
+    setIsFullscreen(true);
+  };
+  const handleExitFullscreen = () => {
+    setIsFullscreen(false);
+  };
+  const toggleFullscreen = () => {
+    if (isFullscreen) {
+      handleExitFullscreen();
+    } else {
+      handleEnterFullscreen();
+    }
+  };
+
   useEffect(() => {
     const storedStudentInfo = getInfo();
 
@@ -298,7 +313,10 @@ const Classroom: FC = () => {
   }, []);
 
   return (
-    <Layout title={intl.formatMessage({ id: "common_classroom" })}>
+    <Layout
+      isFullscreen={isFullscreen}
+      title={intl.formatMessage({ id: "common_classroom" })}
+    >
       {!isInClassroom && (
         <Classes handleEnterClassroom={handleEnterClassroom} />
       )}
@@ -308,6 +326,7 @@ const Classroom: FC = () => {
           localVideoRef={localVideoRef}
           remoteVideoRef={remoteVideoRef}
           isRemoteStreamActive={isRemoteStreamActive}
+          isFullscreen={isFullscreen}
         />
         <Controls
           isInClassroom={isInClassroom}
@@ -330,6 +349,8 @@ const Classroom: FC = () => {
           handleOpenScreenShareOptions={handleOpenScreenShareOptions}
           isSharingScreen={isSharingScreen}
           broadcastOffer={broadcastOffer}
+          isFullscreen={isFullscreen}
+          toggleFullscreen={toggleFullscreen}
         />
         <ScreenShareDialog
           areScreenShareOptionsOpen={areScreenShareOptionsOpen}
