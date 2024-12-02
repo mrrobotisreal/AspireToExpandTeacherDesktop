@@ -2,12 +2,14 @@ import { FC, RefObject } from "react";
 import { Box, Tooltip } from "@mui/material";
 
 interface VideosProps {
+  isInClassroom: boolean;
   localVideoRef: RefObject<HTMLVideoElement>;
   remoteVideoRef: RefObject<HTMLVideoElement>;
   isRemoteStreamActive: boolean;
 }
 
 const Videos: FC<VideosProps> = ({
+  isInClassroom,
   localVideoRef,
   remoteVideoRef,
   isRemoteStreamActive,
@@ -16,9 +18,10 @@ const Videos: FC<VideosProps> = ({
     <Box
       sx={{
         position: "relative",
-        width: "100%",
-        height: "100%",
+        width: isInClassroom ? "100%" : "0vw",
+        height: isInClassroom ? "100%" : "0vh",
         overflow: "hidden",
+        visibility: isInClassroom ? "visible" : "hidden",
       }}
     >
       <Tooltip title="Student's video" placement="top" arrow>

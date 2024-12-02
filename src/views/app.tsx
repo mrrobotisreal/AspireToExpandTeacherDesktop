@@ -1,5 +1,7 @@
 import React, { FC, useEffect, useState } from "react";
 import { ThemeProvider } from "@mui/material/styles";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { IntlProvider } from "react-intl";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -37,26 +39,28 @@ const App: FC = () => {
 
   return (
     <IntlProvider locale={locale} messages={messages}>
-      <ThemeProvider theme={theme}>
-        <TeacherContextProvider>
-          <ChatContextProvider>
-            <Router>
-              <Routes>
-                <Route path="/" element={<Login />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/profile" element={<ProfileSettings />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/classroom" element={<Classroom />} />
-                <Route path="/chat" element={<Chat />} />
-                {/* <Route path="/lessons" element={} /> */}
-                {/* <Route path="/assignments" element={} /> */}
-                {/* <Route path="/games" element={} /> */}
-                {/* <Route path="/profile" element={} /> */}
-              </Routes>
-            </Router>
-          </ChatContextProvider>
-        </TeacherContextProvider>
-      </ThemeProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <ThemeProvider theme={theme}>
+          <TeacherContextProvider>
+            <ChatContextProvider>
+              <Router>
+                <Routes>
+                  <Route path="/" element={<Login />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/profile" element={<ProfileSettings />} />
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/classroom" element={<Classroom />} />
+                  <Route path="/chat" element={<Chat />} />
+                  {/* <Route path="/lessons" element={} /> */}
+                  {/* <Route path="/assignments" element={} /> */}
+                  {/* <Route path="/games" element={} /> */}
+                  {/* <Route path="/profile" element={} /> */}
+                </Routes>
+              </Router>
+            </ChatContextProvider>
+          </TeacherContextProvider>
+        </ThemeProvider>
+      </LocalizationProvider>
     </IntlProvider>
   );
 };

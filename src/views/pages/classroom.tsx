@@ -9,6 +9,7 @@ import Layout from "../layout/layout";
 import Controls from "./classroomComponents/controls";
 import ScreenShareDialog from "./classroomComponents/screenShareDialog";
 import Videos from "./classroomComponents/videos";
+import Classes from "./classroomComponents/classes";
 
 const url = `${VIDEO_SERVER_URL}/?type=teacher&room=123`;
 
@@ -37,6 +38,10 @@ const Classroom: FC = () => {
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const localStream = useRef<MediaStream | null>(null);
+  const [activeVideoTrack, setActiveVideoTrack] =
+    useState<MediaStreamTrack | null>(null);
+  const [activeAudioTrack, setActiveAudioTrack] =
+    useState<MediaStreamTrack | null>(null);
   const [isRemoteStreamActive, setIsRemoteStreamActive] = useState(false);
   const [isMicOn, setIsMicOn] = useState(true);
   const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
@@ -58,6 +63,7 @@ const Classroom: FC = () => {
     useState<null | HTMLElement>(null);
   const [callSettingsMenuIsOpen, setCallSettingsMenuIsOpen] = useState(false);
   const [isCallStarted, setIsCallStarted] = useState(false);
+  const [isInClassroom, setIsInClassroom] = useState(false);
 
   const handleOpenCallSettingsMenu = (
     event: React.MouseEvent<HTMLButtonElement>
@@ -71,19 +77,15 @@ const Classroom: FC = () => {
   };
 
   const toggleVideo = () => {
-    const videoTrack = localStream.current?.getVideoTracks()[0];
-
-    if (videoTrack) {
-      videoTrack.enabled = !videoTrack.enabled;
-      setIsVideoOn(videoTrack.enabled);
+    if (activeVideoTrack) {
+      activeVideoTrack.enabled = !activeVideoTrack.enabled;
+      setIsVideoOn(activeVideoTrack.enabled);
     }
   };
   const toggleAudio = () => {
-    const audioTrack = localStream.current?.getAudioTracks()[0];
-
-    if (audioTrack) {
-      audioTrack.enabled = !audioTrack.enabled;
-      setIsMicOn(audioTrack.enabled);
+    if (activeAudioTrack) {
+      activeAudioTrack.enabled = !activeAudioTrack.enabled;
+      setIsMicOn(activeAudioTrack.enabled);
     }
   };
 
@@ -101,6 +103,7 @@ const Classroom: FC = () => {
         video: videoConstraints,
       });
       const videoTrack = stream.getVideoTracks()[0];
+      setActiveVideoTrack(videoTrack);
 
       const senders = peerConnection.getSenders();
       const videoSender = senders.find(
@@ -131,6 +134,7 @@ const Classroom: FC = () => {
         audio: { deviceId: { exact: selectedAudioDeviceID } },
       });
       const cameraTrack = cameraStream.getVideoTracks()[0];
+      setActiveVideoTrack(cameraTrack);
 
       const senders = peerConnection.getSenders();
       const sender = senders.find((sender) => sender.track?.kind === "video");
@@ -177,6 +181,8 @@ const Classroom: FC = () => {
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
       }
+      const videoTrack = stream.getVideoTracks()[0];
+      setActiveVideoTrack(videoTrack);
       setSelectedVideoDeviceID(deviceId);
       setSelectedVideoDeviceLabel(label);
     } catch (error) {
@@ -196,6 +202,8 @@ const Classroom: FC = () => {
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
       }
+      const audioTrack = stream.getAudioTracks()[0];
+      setActiveAudioTrack(audioTrack);
       setSelectedAudioDeviceID(deviceId);
       setSelectedAudioDeviceLabel(label);
     } catch (error) {
@@ -235,6 +243,10 @@ const Classroom: FC = () => {
       stream.getTracks().forEach((track) => {
         peerConnection.addTrack(track, stream);
       });
+      const videoTrack = stream.getVideoTracks()[0];
+      setActiveVideoTrack(videoTrack);
+      const audioTrack = stream.getAudioTracks()[0];
+      setActiveAudioTrack(audioTrack);
       setIsMicOn(true);
       setIsVideoOn(true);
       await fetchDevices();
@@ -265,6 +277,16 @@ const Classroom: FC = () => {
     }
   }
 
+  const handleEnterClassroom = () => {
+    setIsInClassroom(true);
+    // TODO: add other room logic here
+  };
+
+  const handleExitClassroom = () => {
+    setIsInClassroom(false);
+    // TODO: add other room logic here
+  };
+
   useEffect(() => {
     const storedStudentInfo = getInfo();
 
@@ -277,37 +299,45 @@ const Classroom: FC = () => {
 
   return (
     <Layout title={intl.formatMessage({ id: "common_classroom" })}>
-      <Videos
-        localVideoRef={localVideoRef}
-        remoteVideoRef={remoteVideoRef}
-        isRemoteStreamActive={isRemoteStreamActive}
-      />
-      <Controls
-        isCallStarted={isCallStarted}
-        handleOpenCallSettingsMenu={handleOpenCallSettingsMenu}
-        handleCloseCallSettingsMenu={handleCloseCallSettingsMenu}
-        callSettingsAnchorEl={callSettingsAnchorEl}
-        callSettingsMenuIsOpen={callSettingsMenuIsOpen}
-        handleSelectVideoDevice={handleSelectVideoDevice}
-        toggleVideo={toggleVideo}
-        isVideoOn={isVideoOn}
-        videoDevices={videoDevices}
-        selectedVideoDeviceLabel={selectedVideoDeviceLabel}
-        handleSelectAudioDevice={handleSelectAudioDevice}
-        toggleAudio={toggleAudio}
-        isMicOn={isMicOn}
-        audioDevices={audioDevices}
-        selectedAudioDeviceLabel={selectedAudioDeviceLabel}
-        handleOpenScreenShareOptions={handleOpenScreenShareOptions}
-        isSharingScreen={isSharingScreen}
-        broadcastOffer={broadcastOffer}
-      />
-      <ScreenShareDialog
-        areScreenShareOptionsOpen={areScreenShareOptionsOpen}
-        handleCloseScreenShareOptions={handleCloseScreenShareOptions}
-        screenShareOptions={screenShareOptions}
-        handleSelectScreenShareSource={handleSelectScreenShareSource}
-      />
+      {!isInClassroom && (
+        <Classes handleEnterClassroom={handleEnterClassroom} />
+      )}
+      <>
+        <Videos
+          isInClassroom={isInClassroom}
+          localVideoRef={localVideoRef}
+          remoteVideoRef={remoteVideoRef}
+          isRemoteStreamActive={isRemoteStreamActive}
+        />
+        <Controls
+          isInClassroom={isInClassroom}
+          handleExitClassroom={handleExitClassroom}
+          isCallStarted={isCallStarted}
+          handleOpenCallSettingsMenu={handleOpenCallSettingsMenu}
+          handleCloseCallSettingsMenu={handleCloseCallSettingsMenu}
+          callSettingsAnchorEl={callSettingsAnchorEl}
+          callSettingsMenuIsOpen={callSettingsMenuIsOpen}
+          handleSelectVideoDevice={handleSelectVideoDevice}
+          toggleVideo={toggleVideo}
+          isVideoOn={isVideoOn}
+          videoDevices={videoDevices}
+          selectedVideoDeviceLabel={selectedVideoDeviceLabel}
+          handleSelectAudioDevice={handleSelectAudioDevice}
+          toggleAudio={toggleAudio}
+          isMicOn={isMicOn}
+          audioDevices={audioDevices}
+          selectedAudioDeviceLabel={selectedAudioDeviceLabel}
+          handleOpenScreenShareOptions={handleOpenScreenShareOptions}
+          isSharingScreen={isSharingScreen}
+          broadcastOffer={broadcastOffer}
+        />
+        <ScreenShareDialog
+          areScreenShareOptionsOpen={areScreenShareOptionsOpen}
+          handleCloseScreenShareOptions={handleCloseScreenShareOptions}
+          screenShareOptions={screenShareOptions}
+          handleSelectScreenShareSource={handleSelectScreenShareSource}
+        />
+      </>
     </Layout>
   );
 };

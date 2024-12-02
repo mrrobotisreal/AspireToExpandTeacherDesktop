@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import {
+  ExitToAppTwoTone,
   MicOffTwoTone,
   MicTwoTone,
   ScreenShareTwoTone,
@@ -24,6 +25,8 @@ import { useThemeContext } from "../../../context/themeContext";
 import Text from "../../text/text";
 
 interface ControlsProps {
+  isInClassroom: boolean;
+  handleExitClassroom: () => void;
   isCallStarted: boolean;
   handleOpenCallSettingsMenu: (
     event: React.MouseEvent<HTMLButtonElement>
@@ -47,6 +50,8 @@ interface ControlsProps {
 }
 
 const Controls: FC<ControlsProps> = ({
+  isInClassroom,
+  handleExitClassroom,
   isCallStarted,
   handleOpenCallSettingsMenu,
   handleCloseCallSettingsMenu,
@@ -68,6 +73,8 @@ const Controls: FC<ControlsProps> = ({
 }) => {
   const intl = useIntl();
   const { theme, regularFont, heavyFont } = useThemeContext();
+
+  if (!isInClassroom) return null;
 
   return (
     <Box padding={2}>
@@ -194,6 +201,14 @@ const Controls: FC<ControlsProps> = ({
                 sx={{ color: theme.palette.secondary.light }}
               />
             )}
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Exit classroom" placement="top" arrow>
+          <IconButton size="large" onClick={handleExitClassroom}>
+            <ExitToAppTwoTone
+              fontSize="large"
+              sx={{ color: theme.palette.secondary.light }}
+            />
           </IconButton>
         </Tooltip>
         <Button

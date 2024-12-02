@@ -26,12 +26,23 @@ interface TeacherInfo {
   // TODO: Add more fields
 }
 
+interface UpcomingClass {
+  dateAndTime: string;
+  preferredName: string;
+  profilePicURL: string;
+  room: string;
+  studentID: string;
+  subject: string;
+}
+
 interface TeacherInfoContext {
   info: TeacherInfo;
   getInfo: () => TeacherInfo | null;
   removeInfo: () => void;
   updateInfo: (newInfo: TeacherInfo) => void;
   updateInfoOnServer: (newInfo: UpdateTeacherInfoRequest) => Promise<void>;
+  classes: UpcomingClass[];
+  fetchClasses: () => Promise<void>;
 }
 
 const getInfo = () => {
@@ -48,6 +59,8 @@ const TeacherContext = createContext<TeacherInfoContext>({
   removeInfo,
   updateInfo: () => {},
   updateInfoOnServer: async () => {},
+  classes: [],
+  fetchClasses: async () => {},
 });
 
 export const useTeacherContext = () =>
@@ -89,10 +102,41 @@ interface StudentProviderProps {
 
 const TeacherProvider: FC<StudentProviderProps> = ({ children }) => {
   const [teacherInfo, setTeacherInfo] = useState<TeacherInfo>({});
+  const [classes, setClasses] = useState<UpcomingClass[]>([]);
 
   const updateInfo = (newInfo: TeacherInfo) => {
     setTeacherInfo(newInfo);
     localStorage.setItem("teacherInfo", JSON.stringify(newInfo));
+  };
+
+  const fetchClasses = async () => {
+    setClasses([
+      {
+        dateAndTime: "2024-12-02T10:00:00",
+        preferredName: "Koala",
+        profilePicURL: "file:///Users/mitchwintrow/Pictures/koala1.jpg",
+        room: "123",
+        studentID: "koala-123-abc",
+        subject: "Punctuation",
+      },
+      {
+        dateAndTime: "2024-12-02T11:00:00",
+        preferredName: "Mitch",
+        profilePicURL:
+          "file:///Users/mitchwintrow/Pictures/mitchProfilePic.png",
+        room: "123",
+        studentID: "mitch-123-abc",
+        subject: "Critical Thinking",
+      },
+      {
+        dateAndTime: "2024-12-02T12:00:00",
+        preferredName: "Koalita",
+        profilePicURL: "file:///Users/mitchwintrow/Pictures/koala2.jpg",
+        room: "123",
+        studentID: "koalita-123-abc",
+        subject: "Grammar",
+      },
+    ]);
   };
 
   const values = {
@@ -101,6 +145,8 @@ const TeacherProvider: FC<StudentProviderProps> = ({ children }) => {
     removeInfo,
     updateInfo,
     updateInfoOnServer,
+    classes,
+    fetchClasses,
   };
 
   return (
