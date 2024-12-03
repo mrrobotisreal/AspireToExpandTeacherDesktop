@@ -39,7 +39,9 @@ This app provides teachers with the ability manage existing and new student data
 
 ## Demo
 
-Demo will be uploaded shortly...
+![gifDemo](./demoTeacherDesktop.mov.gif)
+
+More demos will be added over time...
 
 ## Installation for development
 
