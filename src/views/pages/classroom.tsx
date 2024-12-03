@@ -11,7 +11,7 @@ import ScreenShareDialog from "./classroomComponents/screenShareDialog";
 import Videos from "./classroomComponents/videos";
 import Classes from "./classroomComponents/classes";
 
-const url = `${VIDEO_SERVER_URL}/?type=teacher&room=123`;
+const url = `${VIDEO_SERVER_URL}/classroom?type=teacher&room=123`;
 
 const Classroom: FC = () => {
   const intl = useIntl();
