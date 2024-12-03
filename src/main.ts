@@ -60,7 +60,8 @@ function createWindow(): void {
   });
 
   mainWindow.maximize();
-  mainWindow.webContents.openDevTools();
+  // Uncomment the line below for development and testing
+  // mainWindow.webContents.openDevTools(); // TODO: Remove this line in production
 
   if (process.env.NODE_ENV === "development") {
     console.log("Loading from Webpack Dev Server at http://localhost:9001/");
