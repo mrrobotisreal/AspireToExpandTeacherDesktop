@@ -4,7 +4,7 @@ _An educational platform for teachers who want a trustworthy and well built desk
 
 ## Overview
 
-This app provides teachers with the ability manage existing and new student data, securely accept payment for classes via Stripe and Paypal, chat via instant messaging, create and share documents via Google Drive/Docs, use tools such as Google Translate and ChatGPT, conduct one-on-one classes with video/audio/screen sharing capabilities and fullscreen view (_NOTE_: support for up to 4 participants, i.e. 1 teacher and 3 students is currently being built), sending push notifications to individual students or to multiple students via student segments (i.e. send notifications to all students of a certain level, or to all students in a particular timezone, etc.) configure games for students, and more.
+This app provides teachers with the ability manage existing and new student data, securely accept payment for classes via Stripe and Paypal, chat via instant messaging, create and share documents via Google Drive/Docs and S3, use tools such as Google Translate and ChatGPT, conduct one-on-one classes with video/audio/screen sharing capabilities and fullscreen view (_NOTE_: support for up to 4 participants, i.e. 1 teacher and 3 students is currently being built), sending push notifications to individual students or to multiple students via student segments (i.e. send notifications to all students of a certain level, or to all students in a particular timezone, etc.) configure games for students, and more.
 
 ## Table of Contents
 
@@ -30,6 +30,7 @@ This app provides teachers with the ability manage existing and new student data
 - 🌍 Multi-language support _(Currently supports Ukrainian, Russian, and German. Support is being developed for Spanish, French, Hebrew, Arabic, Chinese, Japanese, Portugeuse, Vietnamese, and Korean. Please reach out for support with any languages not mentioned and we'll see what we can do for you!)_
 - 🎥 Encrypted video conferencing and screen sharing with up to 4 partipants via WebRTC
 - 💬 Instant messaging with students via WebSockets
+- 🗂️ Integration with S3 (AWS) _(Under development)_
 - 📂 Integration with Google Drive/Docs _(Under development)_
 - ㊙️ Integration with Google Translate _(Under development)_
 - 🤖 Integration with ChatGPT _(Under development)_
@@ -198,3 +199,9 @@ This project is licensed under the **Creative Commons Attribution-NonCommercial-
 - **Forking, modifications, or derivative works are not allowed.**
 
 For the full license text, visit [Creative Commons License](https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode).
+
+---
+
+This product is developed and owned by WinApps Solutions LLC ©2024
+
+![WinApps Logo](./WinAppsLogo.svg)
