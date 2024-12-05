@@ -180,6 +180,8 @@ db.students.insertOne({
 ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?logo=chartdotjs&logoColor=fff)
 ![Stripe](https://img.shields.io/badge/Stripe-5851DD?logo=stripe&logoColor=fff)
 ![PayPal](https://img.shields.io/badge/PayPal-003087?logo=paypal&logoColor=fff)
+![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?logo=amazon-web-services&logoColor=white)
+![Google Translate](https://img.shields.io/badge/Google_Translate-blue?style=flat&logo=googletranslate&logoColor=white&logoSize=auto)
 ![Google Drive](https://img.shields.io/badge/Google%20Drive-4285F4?logo=googledrive&logoColor=fff)
 ![ChatGPT](https://img.shields.io/badge/ChatGPT-74aa9c?logo=openai&logoColor=white)
 ![Git](https://img.shields.io/badge/Git-F05032?logo=git&logoColor=fff)
@@ -202,6 +204,6 @@ For the full license text, visit [Creative Commons License](https://creativecomm
 
 ---
 
-This product is developed and owned by WinApps Solutions LLC ©2024
+This product is developed and owned by [WinApps Solutions LLC ©2024](https://winapps.io)
 
 ![WinApps Logo](./WinAppsLogo.svg)
