@@ -13,4 +13,3 @@ export const lessonPackages: LessonPackage[] = [
 
 export const STRIPE_PUBLISHABLE_KEY =
   window.electronAPI.getStripePublishableKey();
-console.log("STRIPE_PUBLISHABLE_KEY:", STRIPE_PUBLISHABLE_KEY);
