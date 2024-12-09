@@ -21,6 +21,8 @@ export interface ElectronAPI {
   onNewMessage: (callback: (message: any) => void) => void;
   selectChatAttachment: () => Promise<string>;
   getMediaSources: () => Promise<Electron.DesktopCapturerSource[]>;
+  getStripePublishableKey: () => string;
+  getPaymentServerURL: () => string;
 }
 
 declare global {

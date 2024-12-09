@@ -3,27 +3,40 @@ import {
   Avatar,
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
+  FormLabel,
   MenuItem,
   Select,
   SelectChangeEvent,
   SnackbarCloseReason,
 } from "@mui/material";
 import { useIntl } from "react-intl";
+import { useNavigate } from "react-router-dom";
 
 import { useTeacherContext } from "../../context/teacherContext";
 import { useMessagesContext } from "../../context/messagesContext";
 import { useThemeContext } from "../../context/themeContext";
+import {
+  usePaymentContext,
+  LessonPackageId,
+} from "../../context/paymentContext";
 import useUploadImage from "../../hooks/useUploadImage";
 import Layout from "../layout/layout";
 import Text from "../text/text";
 import Toast from "../alerts/toast";
+import { LessonPackage, lessonPackages } from "../../constants/prices";
 
 const ProfileSettings: FC = () => {
   const intl = useIntl();
   const { info, getInfo, updateInfo, updateInfoOnServer } = useTeacherContext();
   const { changeLocale } = useMessagesContext();
   const { theme, regularFont, heavyFont } = useThemeContext();
+  const { selectedPackageId, changeSelectedPackageId } = usePaymentContext();
+  const navigate = useNavigate();
   const { uploadImage } = useUploadImage();
   const [profilePictureURL, setProfilePictureURL] = useState(
     info.profilePictureURL ?? ""
@@ -47,6 +60,14 @@ const ProfileSettings: FC = () => {
   const [toastSeverity, setToastSeverity] = useState<"success" | "error">(
     "success"
   );
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [lessonPackageSelected, setLessonPackageSelected] =
+    useState<LessonPackage>({
+      id: "3_lessons",
+      name: "3 Lessons",
+      price: 114,
+    });
+  const [lessonsRemaining, setLessonsRemaining] = useState(3);
 
   const handleChooseImage = async () => {
     const filePath = await window.electronAPI.selectImage();
@@ -129,6 +150,30 @@ const ProfileSettings: FC = () => {
     }
 
     setToastIsOpen(false);
+  };
+
+  const handleOpenPaymentDialog = () => setIsPaymentDialogOpen(true);
+  const handleClosePaymentDialog = () => setIsPaymentDialogOpen(false);
+  const handleClickBuy = () => {
+    let lessonCost: string;
+    if (lessonPackageSelected.id === "1_lesson") {
+      lessonCost = "$40";
+    } else if (lessonPackageSelected.id === "3_lessons") {
+      lessonCost = "$38";
+    } else if (lessonPackageSelected.id === "6_lessons") {
+      lessonCost = "$35";
+    } else {
+      lessonCost = "$30";
+    }
+    setIsPaymentDialogOpen(false);
+    navigate("/payment", {
+      state: {
+        packageId: lessonPackageSelected.id,
+        packageLabel: lessonPackageSelected.name,
+        packagePrice: lessonPackageSelected.price,
+        lessonPrice: lessonCost,
+      },
+    });
   };
 
   useEffect(() => {
@@ -284,6 +329,25 @@ const ProfileSettings: FC = () => {
       </FormControl>
       <br />
       <br />
+      <Text variant="h6" fontFamily={heavyFont} color="textPrimary">
+        {intl.formatMessage(
+          { id: "account_profileSettings_totalLessonsRemaining" },
+          {
+            lessonsRemaining,
+          }
+        )}
+      </Text>
+      <Button
+        variant="outlined"
+        color="secondary"
+        onClick={handleOpenPaymentDialog}
+      >
+        <Text variant="button" fontFamily={regularFont} color="textPrimary">
+          {intl.formatMessage({ id: "account_profileSettings_buyMoreLessons" })}
+        </Text>
+      </Button>
+      <br />
+      <br />
       <Box display="flex" justifyContent="flex-end">
         <Button
           variant="contained"
@@ -306,6 +370,82 @@ const ProfileSettings: FC = () => {
           onClose: handleCloseToast,
         }}
       />
+      <Dialog open={isPaymentDialogOpen} onClose={handleClosePaymentDialog}>
+        <DialogTitle
+          sx={{
+            backgroundColor: theme.palette.primary.main,
+            fontFamily: heavyFont,
+          }}
+        >
+          {intl.formatMessage({ id: "account_profileSettings_buyMoreLessons" })}
+        </DialogTitle>
+        <DialogContent>
+          <FormControl sx={{ minWidth: 300, mt: 2, mb: 2 }}>
+            <FormLabel>
+              <Text variant="h6" fontFamily={heavyFont}>
+                {intl.formatMessage({
+                  id: "account_profileSettings_selectLessonPackage",
+                })}
+                :
+              </Text>
+            </FormLabel>
+            <Select
+              id="lessonPackage"
+              value={lessonPackageSelected.id}
+              onChange={(event: SelectChangeEvent) => {
+                const selectedPackage = lessonPackages.find(
+                  (pkg) => pkg.id === event.target.value
+                );
+                setLessonPackageSelected(
+                  selectedPackage ?? lessonPackageSelected
+                );
+                changeSelectedPackageId(event.target.value! as LessonPackageId);
+              }}
+            >
+              <MenuItem value="1_lesson">
+                {intl.formatMessage({
+                  id: "account_profileSettings_lessonPackage1",
+                })}
+              </MenuItem>
+              <MenuItem value="3_lessons">
+                {intl.formatMessage({
+                  id: "account_profileSettings_lessonPackage3",
+                })}
+              </MenuItem>
+              <MenuItem value="6_lessons">
+                {intl.formatMessage({
+                  id: "account_profileSettings_lessonPackage6",
+                })}
+              </MenuItem>
+              <MenuItem value="12_lessons">
+                {intl.formatMessage({
+                  id: "account_profileSettings_lessonPackage12",
+                })}
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleClosePaymentDialog}
+          >
+            <Text variant="button" fontFamily={regularFont} color="textPrimary">
+              {intl.formatMessage({ id: "common_cancel" })}
+            </Text>
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleClickBuy}
+          >
+            <Text variant="button" fontFamily={regularFont} color="textPrimary">
+              {intl.formatMessage({ id: "account_profileSettings_buyLessons" })}
+            </Text>
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Layout>
   );
 };

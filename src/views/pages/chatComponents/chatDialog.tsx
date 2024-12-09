@@ -114,12 +114,13 @@ const ChatDialog: FC<ChatDialogProps> = ({
           </Text>
         </Button>
         <Button
-          onClick={() =>
+          onClick={() => {
+            console.log("selectedStudent: ", selectedStudent);
             handleStartNewChat(
               selectedStudent?.preferredname!,
               selectedStudent?.studentid!
-            )
-          }
+            );
+          }}
           variant="contained"
           color="secondary"
           disabled={!selectedStudent}

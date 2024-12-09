@@ -36,7 +36,8 @@ const Chat: FC = () => {
 
   const getNameAndID = () => {
     if (selectedChat && allChats.length) {
-      const chat = chats.find((chat) => chat.chatID === selectedChat)!;
+      const chat = chats.find((chat) => chat.chatID === selectedChat);
+      if (!chat) return { name: "", toID: "" };
       return {
         name:
           chat.to === info.preferredName
@@ -67,6 +68,10 @@ const Chat: FC = () => {
 
   const handleClickSend = (name: string, toID: string) => {
     console.log("handling send...");
+    console.log("name: ", name);
+    console.log("toID: ", toID);
+    console.log("textMessage: ", textMessage);
+    console.log("info: ", info);
     const message = {
       from: info.preferredName!,
       fromID: info.teacherID!,
