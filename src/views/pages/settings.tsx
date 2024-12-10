@@ -7,6 +7,7 @@ import {
   Select,
   SelectChangeEvent,
   SnackbarCloseReason,
+  Stack,
 } from "@mui/material";
 import { useIntl } from "react-intl";
 
@@ -116,123 +117,144 @@ const Settings: FC = () => {
       </Text>
       <br />
       <br />
-      <Text
-        variant="h6"
-        fontWeight="bold"
-        fontFamily={heavyFont}
-        color="textPrimary"
-      >
-        {intl.formatMessage({ id: "account_appSettings_themeMode" })}:
-      </Text>
-      <FormControl sx={{ minWidth: 300 }}>
-        <Select
-          id="themeMode"
-          value={selectedThemeMode}
-          onChange={handleSelectThemeMode}
-        >
-          <MenuItem value="light">
-            <Text variant="body1" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({
-                id: "account_appSettings_themeMode_lightTheme",
-              })}
-            </Text>
-          </MenuItem>
-          <MenuItem value="dark">
-            <Text variant="body1" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({
-                id: "account_appSettings_themeMode_darkTheme",
-              })}
-            </Text>
-          </MenuItem>
-        </Select>
-      </FormControl>
-      <br />
-      <br />
-      <Text
-        variant="h6"
-        fontWeight="bold"
-        fontFamily={heavyFont}
-        color="textPrimary"
-      >
-        {intl.formatMessage({ id: "account_appSettings_fontStyle" })}:
-      </Text>
-      <FormControl sx={{ minWidth: 300 }}>
-        <Select
-          id="fontStyle"
-          value={selectedFontFamily}
-          onChange={handleSelectFontStyle}
-        >
-          <MenuItem value="Bauhaus">
-            <Text
-              variant="body1"
-              fontFamily="Bauhaus-Medium"
-              color="textPrimary"
+      <Stack direction="row" spacing={0}>
+        <Stack spacing={2}>
+          <Text
+            variant="h6"
+            fontWeight="bold"
+            fontFamily={heavyFont}
+            color="textPrimary"
+          >
+            {intl.formatMessage({ id: "account_appSettings_themeMode" })}:
+          </Text>
+          <FormControl sx={{ minWidth: 450, maxWidth: 450 }}>
+            <Select
+              id="themeMode"
+              value={selectedThemeMode}
+              onChange={handleSelectThemeMode}
             >
-              {intl.formatMessage({
-                id: "account_appSettings_fontStyle_bauhaus",
-              })}
-            </Text>
-          </MenuItem>
-          <MenuItem value="Hummingbird">
-            <Text variant="body1" fontFamily="Hummingbird" color="textPrimary">
-              {intl.formatMessage({
-                id: "account_appSettings_fontStyle_hummingbird",
-              })}
-            </Text>
-          </MenuItem>
-          <MenuItem value="LobsterTwo">
-            <Text
-              variant="body1"
-              fontFamily="LobsterTwo-Regular"
-              color="textPrimary"
+              <MenuItem value="light">
+                <Text
+                  variant="body1"
+                  fontFamily={regularFont}
+                  color="textPrimary"
+                >
+                  {intl.formatMessage({
+                    id: "account_appSettings_themeMode_lightTheme",
+                  })}
+                </Text>
+              </MenuItem>
+              <MenuItem value="dark">
+                <Text
+                  variant="body1"
+                  fontFamily={regularFont}
+                  color="textPrimary"
+                >
+                  {intl.formatMessage({
+                    id: "account_appSettings_themeMode_darkTheme",
+                  })}
+                </Text>
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
+        <Box sx={{ flexGrow: 1 }} />
+        <Stack spacing={2}>
+          <Text
+            variant="h6"
+            fontWeight="bold"
+            fontFamily={heavyFont}
+            color="textPrimary"
+          >
+            {intl.formatMessage({ id: "account_appSettings_fontStyle" })}:
+          </Text>
+          <FormControl sx={{ minWidth: 450, maxWidth: 450 }}>
+            <Select
+              id="fontStyle"
+              value={selectedFontFamily}
+              onChange={handleSelectFontStyle}
             >
-              {intl.formatMessage({
-                id: "account_appSettings_fontStyle_lobsterTwo",
-              })}
-            </Text>
-          </MenuItem>
-          <MenuItem value="NexaScript">
-            <Text
-              variant="body1"
-              fontFamily="NexaScript-Light"
-              color="textPrimary"
-            >
-              {intl.formatMessage({
-                id: "account_appSettings_fontStyle_nexaScript",
-              })}
-            </Text>
-          </MenuItem>
-          <MenuItem value="NotoSerif">
-            <Text variant="body1" fontFamily="NotoSerif" color="textPrimary">
-              {intl.formatMessage({
-                id: "account_appSettings_fontStyle_notoSerif",
-              })}
-            </Text>
-          </MenuItem>
-          <MenuItem value="Roboto">
-            <Text
-              variant="body1"
-              fontFamily="Roboto-Regular"
-              color="textPrimary"
-            >
-              {intl.formatMessage({
-                id: "account_appSettings_fontStyle_roboto",
-              })}
-            </Text>
-          </MenuItem>
-          <MenuItem value="Ubuntu">
-            <Text
-              variant="body1"
-              fontFamily="Ubuntu-Regular"
-              color="textPrimary"
-            >
-              {intl.formatMessage({
-                id: "account_appSettings_fontStyle_ubuntu",
-              })}
-            </Text>
-          </MenuItem>
-        </Select>
-      </FormControl>
+              <MenuItem value="Bauhaus">
+                <Text
+                  variant="body1"
+                  fontFamily="Bauhaus-Medium"
+                  color="textPrimary"
+                >
+                  {intl.formatMessage({
+                    id: "account_appSettings_fontStyle_bauhaus",
+                  })}
+                </Text>
+              </MenuItem>
+              <MenuItem value="Hummingbird">
+                <Text
+                  variant="body1"
+                  fontFamily="Hummingbird"
+                  color="textPrimary"
+                >
+                  {intl.formatMessage({
+                    id: "account_appSettings_fontStyle_hummingbird",
+                  })}
+                </Text>
+              </MenuItem>
+              <MenuItem value="LobsterTwo">
+                <Text
+                  variant="body1"
+                  fontFamily="LobsterTwo-Regular"
+                  color="textPrimary"
+                >
+                  {intl.formatMessage({
+                    id: "account_appSettings_fontStyle_lobsterTwo",
+                  })}
+                </Text>
+              </MenuItem>
+              <MenuItem value="NexaScript">
+                <Text
+                  variant="body1"
+                  fontFamily="NexaScript-Light"
+                  color="textPrimary"
+                >
+                  {intl.formatMessage({
+                    id: "account_appSettings_fontStyle_nexaScript",
+                  })}
+                </Text>
+              </MenuItem>
+              <MenuItem value="NotoSerif">
+                <Text
+                  variant="body1"
+                  fontFamily="NotoSerif"
+                  color="textPrimary"
+                >
+                  {intl.formatMessage({
+                    id: "account_appSettings_fontStyle_notoSerif",
+                  })}
+                </Text>
+              </MenuItem>
+              <MenuItem value="Roboto">
+                <Text
+                  variant="body1"
+                  fontFamily="Roboto-Regular"
+                  color="textPrimary"
+                >
+                  {intl.formatMessage({
+                    id: "account_appSettings_fontStyle_roboto",
+                  })}
+                </Text>
+              </MenuItem>
+              <MenuItem value="Ubuntu">
+                <Text
+                  variant="body1"
+                  fontFamily="Ubuntu-Regular"
+                  color="textPrimary"
+                >
+                  {intl.formatMessage({
+                    id: "account_appSettings_fontStyle_ubuntu",
+                  })}
+                </Text>
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
+      </Stack>
       <br />
       <br />
       <Box display="flex" justifyContent="flex-end">

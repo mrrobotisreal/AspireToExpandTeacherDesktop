@@ -9,10 +9,12 @@ import {
   DialogTitle,
   FormControl,
   FormLabel,
+  Grid2 as Grid,
   MenuItem,
   Select,
   SelectChangeEvent,
   SnackbarCloseReason,
+  Stack,
 } from "@mui/material";
 import { useIntl } from "react-intl";
 import { useNavigate } from "react-router-dom";
@@ -229,128 +231,206 @@ const ProfileSettings: FC = () => {
       </Text>
       <br />
       <br />
-      <Text
-        variant="h6"
-        fontWeight="bold"
-        fontFamily={heavyFont}
-        color="textPrimary"
-      >
-        {intl.formatMessage({ id: "account_profileSettings_profilePicture" })}:
-      </Text>
-      <Avatar
-        src={avatarSrc}
-        sx={{
-          width: 160,
-          height: 160,
-        }}
-      />
-      <br />
-      <Button variant="outlined" color="secondary" onClick={handleChooseImage}>
-        <Text variant="body1" fontFamily={regularFont} color="textPrimary">
-          {intl.formatMessage({ id: "common_chooseImage" })}
-        </Text>
-      </Button>
-      <br />
-      <br />
-      <Text
-        variant="h6"
-        fontWeight="bold"
-        fontFamily={heavyFont}
-        color="textPrimary"
-      >
-        {intl.formatMessage({ id: "common_preferredLanguage" })}:
-      </Text>
-      <FormControl sx={{ minWidth: 300 }}>
-        <Select
-          id="preferredLanguage"
-          value={preferredLanguage}
-          onChange={handlePreferredLanguage}
-        >
-          <MenuItem value="en">
-            <Text variant="body1" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({ id: "common_language_en" })}
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Stack spacing={2}>
+            <Text
+              variant="h6"
+              fontWeight="bold"
+              fontFamily={heavyFont}
+              color="textPrimary"
+            >
+              {intl.formatMessage({
+                id: "account_profileSettings_profilePicture",
+              })}
+              :
             </Text>
-          </MenuItem>
-          <MenuItem value="uk">
-            <Text variant="body1" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({ id: "common_language_uk" })}
+            <Avatar
+              src={avatarSrc}
+              sx={{
+                width: 160,
+                height: 160,
+              }}
+            />
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleChooseImage}
+              sx={{ maxWidth: 300 }}
+            >
+              <Text
+                variant="body1"
+                fontFamily={regularFont}
+                color="textPrimary"
+              >
+                {intl.formatMessage({ id: "common_chooseImage" })}
+              </Text>
+            </Button>
+          </Stack>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Stack spacing={2}>
+            <Text
+              variant="h6"
+              fontWeight="bold"
+              fontFamily={heavyFont}
+              color="textPrimary"
+            >
+              {intl.formatMessage({ id: "common_preferredLanguage" })}:
             </Text>
-          </MenuItem>
-          <MenuItem value="ru">
-            <Text variant="body1" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({ id: "common_language_ru" })}
+            <FormControl sx={{ minWidth: 300, maxWidth: 400 }}>
+              <Select
+                id="preferredLanguage"
+                value={preferredLanguage}
+                onChange={handlePreferredLanguage}
+              >
+                <MenuItem value="en">
+                  <Text
+                    variant="body1"
+                    fontFamily={regularFont}
+                    color="textPrimary"
+                  >
+                    {intl.formatMessage({ id: "common_language_en" })}
+                  </Text>
+                </MenuItem>
+                <MenuItem value="uk">
+                  <Text
+                    variant="body1"
+                    fontFamily={regularFont}
+                    color="textPrimary"
+                  >
+                    {intl.formatMessage({ id: "common_language_uk" })}
+                  </Text>
+                </MenuItem>
+                <MenuItem value="ru">
+                  <Text
+                    variant="body1"
+                    fontFamily={regularFont}
+                    color="textPrimary"
+                  >
+                    {intl.formatMessage({ id: "common_language_ru" })}
+                  </Text>
+                </MenuItem>
+                <MenuItem value="de">
+                  <Text
+                    variant="body1"
+                    fontFamily={regularFont}
+                    color="textPrimary"
+                  >
+                    {intl.formatMessage({ id: "common_language_de" })}
+                  </Text>
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Stack>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Stack spacing={2}>
+            <Text variant="h6" fontFamily={heavyFont} color="textPrimary">
+              {/* {intl.formatMessage(
+              { id: "account_profileSettings_totalLessonsRemaining" },
+              {
+                lessonsRemaining,
+              }
+            )} */}
+              Total lessons remaining:
             </Text>
-          </MenuItem>
-          <MenuItem value="de">
             <Text variant="body1" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({ id: "common_language_de" })}
+              {lessonsRemaining}
             </Text>
-          </MenuItem>
-        </Select>
-      </FormControl>
-      <br />
-      <br />
-      <Text
-        variant="h6"
-        fontWeight="bold"
-        fontFamily={heavyFont}
-        color="textPrimary"
-      >
-        {intl.formatMessage({ id: "common_timeZone" })}:
-      </Text>
-      <FormControl sx={{ minWidth: 300 }}>
-        <Select id="timeZone" value={timeZone} onChange={handleSetTimeZone}>
-          <MenuItem value="timeZone_us_pacific">
-            <Text variant="body1" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({ id: "timeZone_us_pacific" })}
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleOpenPaymentDialog}
+              sx={{ maxWidth: 300 }}
+            >
+              <Text
+                variant="button"
+                fontFamily={regularFont}
+                color="textPrimary"
+              >
+                {intl.formatMessage({
+                  id: "account_profileSettings_buyMoreLessons",
+                })}
+              </Text>
+            </Button>
+          </Stack>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Stack spacing={2}>
+            <Text
+              variant="h6"
+              fontWeight="bold"
+              fontFamily={heavyFont}
+              color="textPrimary"
+            >
+              {intl.formatMessage({ id: "common_timeZone" })}:
             </Text>
-          </MenuItem>
-          <MenuItem value="timeZone_us_mountain">
-            <Text variant="body1" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({ id: "timeZone_us_mountain" })}
-            </Text>
-          </MenuItem>
-          <MenuItem value="timeZone_us_central">
-            <Text variant="body1" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({ id: "timeZone_us_central" })}
-            </Text>
-          </MenuItem>
-          <MenuItem value="timeZone_us_eastern">
-            <Text variant="body1" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({ id: "timeZone_us_eastern" })}
-            </Text>
-          </MenuItem>
-          <MenuItem value="timeZone_at_vienna">
-            <Text variant="body1" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({ id: "timeZone_at_vienna" })}
-            </Text>
-          </MenuItem>
-          <MenuItem value="timeZone_ua_kyiv">
-            <Text variant="body1" fontFamily={regularFont} color="textPrimary">
-              {intl.formatMessage({ id: "timeZone_ua_kyiv" })}
-            </Text>
-          </MenuItem>
-        </Select>
-      </FormControl>
-      <br />
-      <br />
-      <Text variant="h6" fontFamily={heavyFont} color="textPrimary">
-        {intl.formatMessage(
-          { id: "account_profileSettings_totalLessonsRemaining" },
-          {
-            lessonsRemaining,
-          }
-        )}
-      </Text>
-      <Button
-        variant="outlined"
-        color="secondary"
-        onClick={handleOpenPaymentDialog}
-      >
-        <Text variant="button" fontFamily={regularFont} color="textPrimary">
-          {intl.formatMessage({ id: "account_profileSettings_buyMoreLessons" })}
-        </Text>
-      </Button>
+            <FormControl sx={{ minWidth: 300, maxWidth: 400 }}>
+              <Select
+                id="timeZone"
+                value={timeZone}
+                onChange={handleSetTimeZone}
+              >
+                <MenuItem value="timeZone_us_pacific">
+                  <Text
+                    variant="body1"
+                    fontFamily={regularFont}
+                    color="textPrimary"
+                  >
+                    {intl.formatMessage({ id: "timeZone_us_pacific" })}
+                  </Text>
+                </MenuItem>
+                <MenuItem value="timeZone_us_mountain">
+                  <Text
+                    variant="body1"
+                    fontFamily={regularFont}
+                    color="textPrimary"
+                  >
+                    {intl.formatMessage({ id: "timeZone_us_mountain" })}
+                  </Text>
+                </MenuItem>
+                <MenuItem value="timeZone_us_central">
+                  <Text
+                    variant="body1"
+                    fontFamily={regularFont}
+                    color="textPrimary"
+                  >
+                    {intl.formatMessage({ id: "timeZone_us_central" })}
+                  </Text>
+                </MenuItem>
+                <MenuItem value="timeZone_us_eastern">
+                  <Text
+                    variant="body1"
+                    fontFamily={regularFont}
+                    color="textPrimary"
+                  >
+                    {intl.formatMessage({ id: "timeZone_us_eastern" })}
+                  </Text>
+                </MenuItem>
+                <MenuItem value="timeZone_at_vienna">
+                  <Text
+                    variant="body1"
+                    fontFamily={regularFont}
+                    color="textPrimary"
+                  >
+                    {intl.formatMessage({ id: "timeZone_at_vienna" })}
+                  </Text>
+                </MenuItem>
+                <MenuItem value="timeZone_ua_kyiv">
+                  <Text
+                    variant="body1"
+                    fontFamily={regularFont}
+                    color="textPrimary"
+                  >
+                    {intl.formatMessage({ id: "timeZone_ua_kyiv" })}
+                  </Text>
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Stack>
+        </Grid>
+      </Grid>
       <br />
       <br />
       <Box display="flex" justifyContent="flex-end">
