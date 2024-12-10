@@ -9,7 +9,6 @@ import { useThemeContext } from "../../context/themeContext";
 import CircularLoading from "../loading/circular";
 import Layout from "../layout/layout";
 import Text from "../text/text";
-import { PAYMENT_SERVER_URL } from "../../constants/urls";
 
 const Payment: FC = () => {
   const intl = useIntl();

@@ -108,6 +108,10 @@ const ProfileSettings: FC = () => {
   };
 
   const handleUpdateSettingsOnServer = async () => {
+    if (!info.teacherID || info.teacherID === "") {
+      console.error("Teacher ID is required to update settings on server");
+      return;
+    }
     if (!info.emailAddress || info.emailAddress === "") {
       console.error("Email address is required to update settings on server");
       return;
@@ -115,6 +119,7 @@ const ProfileSettings: FC = () => {
 
     try {
       await updateInfoOnServer({
+        teacherID: info.teacherID,
         email_address: info.emailAddress,
         preferred_language: preferredLanguage,
         profile_picture_url: profilePictureURL,

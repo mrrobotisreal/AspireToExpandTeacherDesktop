@@ -1,10 +1,4 @@
-import React, {
-  FC,
-  ReactNode,
-  createContext,
-  useContext,
-  useState,
-} from "react";
+import { FC, ReactNode, createContext, useContext, useState } from "react";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 

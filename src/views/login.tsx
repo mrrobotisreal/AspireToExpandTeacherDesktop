@@ -89,7 +89,7 @@ const Login: FC = () => {
             const keyPair = await generateKeyPair();
             if (keyPair) {
               updateInfoOnServer({
-                email_address: emailAddress,
+                teacherID: body.teacherID,
                 public_key: keyPair.publicKey,
               });
             } else {

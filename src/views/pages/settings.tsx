@@ -54,6 +54,10 @@ const Settings: FC = () => {
   };
 
   const handleUpdateSettingsOnServer = async () => {
+    if (!info.teacherID || info.teacherID === "") {
+      console.error("Teacher ID is required to update settings on server");
+      return;
+    }
     if (!info.emailAddress || info.emailAddress === "") {
       console.error("Email address is required to update settings on server"); // TODO: localize
       return;
@@ -61,6 +65,7 @@ const Settings: FC = () => {
 
     try {
       await updateInfoOnServer({
+        teacherID: info.teacherID,
         email_address: info.emailAddress,
         theme_mode: selectedThemeMode,
         font_style: selectedFontFamily,
