@@ -4,6 +4,7 @@ import { Grid } from "@mui/material";
 
 import { useChatContext, Chat, createChatID } from "../../context/chatContext";
 import { useTeacherContext } from "../../context/teacherContext";
+import useChat from "../../hooks/useChat";
 import Layout from "../layout/layout";
 
 import ChatDialog from "./chatComponents/chatDialog";
@@ -21,7 +22,9 @@ const Chat: FC = () => {
     messagesAreLoading,
     fetchMessages,
     sendMessage,
+    _sendMessage,
   } = useChatContext();
+  // const { isRegistering } = useChat();
   const messages = useMemo(() => _messages, [_messages]);
   const [allChats, setAllChats] = useState<Chat[]>([]);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
@@ -79,8 +82,11 @@ const Chat: FC = () => {
       toID: toID,
       content: textMessage.trim(),
       time: Date.now(),
+      is_to_teacher: false,
+      is_from_teacher: true,
     };
-    sendMessage(message);
+    // sendMessage(message);
+    _sendMessage(selectedChat!, textMessage.trim());
     setTextMessage("");
   };
 
@@ -103,6 +109,8 @@ const Chat: FC = () => {
           toID,
           content: "",
           time: Date.now(),
+          is_to_teacher: false,
+          is_from_teacher: true,
         },
       },
       ...allChats,

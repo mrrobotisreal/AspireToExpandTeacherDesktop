@@ -12,6 +12,7 @@ import { useThemeContext } from "../context/themeContext";
 import { useMessagesContext } from "../context/messagesContext";
 
 import Login from "./login";
+import _Chat from "./pages/_chat"; // FOR TESTING PURPOSES ONLY
 import Chat from "./pages/chat";
 import _Classroom from "./pages/_classroom"; // FOR TESTING PURPOSES ONLY
 import Classroom from "./pages/classroom";
@@ -52,8 +53,10 @@ const App: FC = () => {
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/profile" element={<ProfileSettings />} />
                     <Route path="/home" element={<Home />} />
+                    {/* <Route path="/classroom" element={<_Classroom />} /> */}
                     <Route path="/classroom" element={<Classroom />} />
-                    <Route path="/chat" element={<Chat />} />
+                    <Route path="/chat" element={<_Chat />} />
+                    {/* <Route path="/chat" element={<Chat />} /> */}
                     <Route path="/payment" element={<Payment />} />
                     {/* <Route path="/lessons" element={} /> */}
                     {/* <Route path="/assignments" element={} /> */}

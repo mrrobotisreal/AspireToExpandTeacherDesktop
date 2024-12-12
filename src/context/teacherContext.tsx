@@ -4,6 +4,8 @@ import React, {
   createContext,
   useContext,
   useState,
+  useRef,
+  useEffect,
 } from "react";
 
 import { AppFontStyle } from "../constants/fonts";
@@ -48,6 +50,7 @@ interface TeacherInfoContext {
 
 const getInfo = () => {
   const info = localStorage.getItem("teacherInfo");
+  console.log("Getting info from localStorage...");
 
   return info ? JSON.parse(info) : null;
 };
@@ -103,12 +106,24 @@ interface StudentProviderProps {
 }
 
 const TeacherProvider: FC<StudentProviderProps> = ({ children }) => {
+  const infoRef = useRef<TeacherInfo>(getInfo() || {});
   const [teacherInfo, setTeacherInfo] = useState<TeacherInfo>({});
   const [classes, setClasses] = useState<UpcomingClass[]>([]);
 
   const updateInfo = (newInfo: TeacherInfo) => {
-    setTeacherInfo(newInfo);
-    localStorage.setItem("teacherInfo", JSON.stringify(newInfo));
+    console.log("Updating teacher info:", newInfo);
+    if (!newInfo.teacherID) {
+      console.log(
+        "This sucka be tryin' to update info without a teacher ID!!! Can you believe dat?"
+      );
+      return;
+    }
+    infoRef.current = {
+      ...infoRef.current,
+      ...newInfo,
+    };
+    setTeacherInfo(infoRef.current);
+    localStorage.setItem("teacherInfo", JSON.stringify(infoRef.current));
   };
 
   const fetchClasses = async () => {
@@ -140,6 +155,12 @@ const TeacherProvider: FC<StudentProviderProps> = ({ children }) => {
       },
     ]);
   };
+
+  useEffect(() => {
+    if (!infoRef.current.teacherID) {
+      console.log("No teacher ID found in localStorage");
+    }
+  }, []);
 
   const values = {
     info: teacherInfo,

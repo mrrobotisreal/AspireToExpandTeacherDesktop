@@ -187,7 +187,7 @@ const Classes: FC<ClassesProps> = ({ handleEnterClassroom }) => {
                 }
               }}
               isOptionEqualToValue={(option, value) => option === value}
-              getOptionLabel={(option: Student) => option.preferredname}
+              getOptionLabel={(option: Student) => option.preferred_name}
               options={allStudents}
               loading={studentsAreLoading}
               renderInput={(params) => (
