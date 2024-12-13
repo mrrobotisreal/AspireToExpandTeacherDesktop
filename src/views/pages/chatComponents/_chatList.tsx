@@ -8,9 +8,15 @@ import {
   List,
   ListItemButton,
   ListItemText,
+  Stack,
   Tooltip,
 } from "@mui/material";
-import { AddCircle, FindInPage } from "@mui/icons-material";
+import {
+  AddCircle,
+  FindInPage,
+  MarkChatReadTwoTone,
+  MarkChatUnreadTwoTone,
+} from "@mui/icons-material";
 
 import { useTeacherContext } from "../../../context/teacherContext";
 import { useThemeContext } from "../../../context/themeContext";
@@ -149,13 +155,23 @@ const ChatList: FC<ChatListProps> = ({
                       }
                     />
                   </ListItemButton>
-                  <Text
-                    variant="caption"
-                    fontFamily={regularFont}
-                    sx={{ ml: 2 }}
-                  >
-                    {new Date(chat.latestMessage.timestamp).toLocaleString()}
-                  </Text>
+                  <Stack direction="row">
+                    <Text
+                      variant="caption"
+                      fontFamily={regularFont}
+                      sx={{ ml: 2 }}
+                    >
+                      {new Date(chat.latestMessage.timestamp).toLocaleString()}
+                    </Text>
+                    <Box sx={{ flexGrow: 1 }} />
+                    <Box sx={{ mr: 2 }}>
+                      {!info.teacherID && !chat.latestMessage.isRead ? (
+                        <MarkChatUnreadTwoTone sx={{ color: "red" }} />
+                      ) : (
+                        <MarkChatReadTwoTone sx={{ color: "limegreen" }} />
+                      )}
+                    </Box>
+                  </Stack>
                   <Divider />
                 </Box>
               );

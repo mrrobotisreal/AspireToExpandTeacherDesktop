@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useState, useRef, useMemo } from "react";
 import { useIntl } from "react-intl";
 import { Grid } from "@mui/material";
 
@@ -13,6 +13,7 @@ import ChatWindow from "./chatComponents/_chatWindow";
 const Chat: FC = () => {
   const intl = useIntl();
   const { info, getInfo, updateInfo } = useTeacherContext();
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const {
     emitRegisterUser,
     isRegistering,
@@ -25,7 +26,6 @@ const Chat: FC = () => {
     chatSummaries,
     chatMessages,
   } = useChat();
-  const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
   const [textMessage, setTextMessage] = useState<string>("");
   const [isStartNewChatOpen, setIsStartNewChatOpen] = useState<boolean>(false);

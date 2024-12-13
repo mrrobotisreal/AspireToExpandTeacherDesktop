@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import { FC, useEffect, useRef } from "react";
 import { useIntl } from "react-intl";
 import { Box, IconButton, Paper, Stack, TextField } from "@mui/material";
 import { AttachFileTwoTone, Done, DoneAll, Send } from "@mui/icons-material";
@@ -31,13 +31,18 @@ const ChatWindow: FC<ChatWindowProps> = ({
   handleClickSend,
 }) => {
   const intl = useIntl();
+  const msgContainerRef = useRef<HTMLDivElement>(null);
   const { theme, regularFont } = useThemeContext();
   const { info } = useTeacherContext();
   const allMessages = messages || [];
   const messagesComponents = messagesAreLoading ? (
     <CircularLoading />
   ) : (
-    <>
+    <Box
+      component="div"
+      ref={msgContainerRef}
+      sx={{ display: "flex", flexDirection: "column" }}
+    >
       {allMessages.map((msg, index) => {
         const date = new Date(msg.timestamp);
         const isUser = msg.sender.userId === info.teacherID!;
@@ -109,10 +114,19 @@ const ChatWindow: FC<ChatWindowProps> = ({
           </Box>
         );
       })}
-    </>
+    </Box>
   );
   const chatIsSelected = Boolean(selectedChat);
   const sendIsDisabled = !Boolean(selectedChat) || !textMessage;
+
+  useEffect(() => {
+    if (msgContainerRef.current) {
+      msgContainerRef.current.scrollIntoView({
+        block: "end",
+        behavior: "instant",
+      });
+    }
+  }, [allMessages]);
 
   return (
     <Box sx={{ pl: 2, pt: 1, pb: 1 }}>

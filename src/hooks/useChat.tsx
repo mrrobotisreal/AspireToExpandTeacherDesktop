@@ -137,7 +137,6 @@ const useChat = (): UseChatReturns => {
     participants: ChatUser[];
     messagesList: ChatMessage[];
   }) => {
-    setChatMessages(messagesList);
     if (!chats[chatId]) {
       setChats({
         ...chats,
@@ -158,6 +157,7 @@ const useChat = (): UseChatReturns => {
       };
       setChats(newChats);
     }
+    setChatMessages(messagesList);
     setAreMessagesLoading(false);
     let teacherId: string | undefined = info.teacherID;
     // This is a workaround for the teacherID not being available in the info object until I can track down where it's being overwritten
