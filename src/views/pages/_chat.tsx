@@ -1,4 +1,11 @@
-import React, { FC, useEffect, useState, useRef, useMemo } from "react";
+import React, {
+  FC,
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import { useIntl } from "react-intl";
 import { Grid } from "@mui/material";
 
@@ -29,6 +36,7 @@ const Chat: FC = () => {
   const [isStartNewChatOpen, setIsStartNewChatOpen] = useState<boolean>(false);
 
   const handleChatSelect = (chatId: string) => {
+    localStorage.setItem("selectedChat", chatId);
     setSelectedChat(chatId);
     if (!info.teacherID) {
       console.error("Teacher ID not found");
@@ -76,6 +84,7 @@ const Chat: FC = () => {
   };
 
   useEffect(() => {
+    localStorage.removeItem("selectedChat");
     const storedStudentInfo = getInfo();
     console.log(
       "storedStudentInfo",

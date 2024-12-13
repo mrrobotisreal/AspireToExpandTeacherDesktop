@@ -87,6 +87,7 @@ interface UseChatReturns {
 const useChat = (): UseChatReturns => {
   const { info, getInfo } = useTeacherContext();
   const socketRef = useRef<Socket | null>(null);
+  // const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [isRegistering, setIsRegistering] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const [chats, setChats] = useState<Chats>({});
@@ -163,7 +164,10 @@ const useChat = (): UseChatReturns => {
       };
       setChats(newChats);
     }
-    setChatMessages(messagesList);
+    const selectedChat = localStorage.getItem("selectedChat");
+    if (selectedChat && chatId === selectedChat) {
+      setChatMessages(messagesList);
+    }
     setAreMessagesLoading(false);
   };
 
@@ -208,8 +212,11 @@ const useChat = (): UseChatReturns => {
       [incomingChat.chatId]: incomingChat,
     };
     setChats(updatedChats);
-    setChatMessages(incomingChat.messages); // this will be updated to only show the messages of the selected chat
     socketRef.current?.emit("receiveMessage", incomingChat.messages[0]);
+    const selectedChat = localStorage.getItem("selectedChat");
+    if (selectedChat && selectedChat === incomingChat.chatId) {
+      setChatMessages(incomingChat.messages);
+    }
   };
 
   useEffect(() => {
