@@ -10,7 +10,8 @@ import { useIntl } from "react-intl";
 import { Grid } from "@mui/material";
 
 import { useTeacherContext } from "../../context/teacherContext";
-import useChat, { EmitSendMessageParams } from "../../hooks/useChat";
+import { useChatContext } from "../../context/chatContext";
+import useChat, { ChatUser, EmitSendMessageParams } from "../../hooks/useChat";
 import Layout from "../layout/layout";
 
 import ChatDialog from "./chatComponents/_chatDialog";
@@ -20,9 +21,13 @@ import ChatWindow from "./chatComponents/_chatWindow";
 const Chat: FC = () => {
   const intl = useIntl();
   const { info, getInfo, updateInfo } = useTeacherContext();
+  // const { selectedChat, handleSelectChat, handleExitChat } = useChatContext();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const {
     isRegistering,
+    emitCreateChatRoom,
+    isCreatingChatRoom,
+    emitListChats,
     areChatsLoading,
     emitListMessages,
     areMessagesLoading,
@@ -35,12 +40,13 @@ const Chat: FC = () => {
   const [textMessage, setTextMessage] = useState<string>("");
   const [isStartNewChatOpen, setIsStartNewChatOpen] = useState<boolean>(false);
 
-  const handleChatSelect = (chatId: string) => {
+  const handleChatSelect = (chatId: string, chatName: string) => {
     localStorage.setItem("selectedChat", chatId);
     setSelectedChat(chatId);
     if (!info.teacherID) {
       console.error("Teacher ID not found");
     }
+    setName(chatName);
     emitListMessages({ roomId: chatId, userId: info.teacherID! });
   };
 
@@ -78,18 +84,27 @@ const Chat: FC = () => {
 
   const handleOpenStartNewChat = () => setIsStartNewChatOpen(true);
   const handleCloseStartNewChat = () => setIsStartNewChatOpen(false);
-  const handleStartNewChat = (name: string, toID: string) => {
-    setName(name);
+  const handleStartNewChat = (participants: ChatUser[], message: string) => {
+    emitCreateChatRoom({
+      sender: {
+        userId: info.teacherID!,
+        userType: "teacher",
+        preferredName: info.preferredName!,
+        firstName: info.firstName!,
+        lastName: info.lastName!,
+        profilePictureUrl: info.profilePictureURL || "",
+      },
+      participants,
+      message,
+      timestamp: Date.now(),
+    });
     handleCloseStartNewChat();
   };
 
   useEffect(() => {
     localStorage.removeItem("selectedChat");
+    localStorage.removeItem("createdChatRoomId");
     const storedStudentInfo = getInfo();
-    console.log(
-      "storedStudentInfo",
-      JSON.stringify(storedStudentInfo, null, 2)
-    );
 
     // TODO: Remove this useEffect in production;
     // This is just for testing purposes to keep info updated during refreshes
@@ -99,11 +114,43 @@ const Chat: FC = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedChat && chatMessages.length > 0) {
+    const storedSelectedChat = localStorage.getItem("selectedChat");
+    const storedCreatedChatRoomId = localStorage.getItem("createdChatRoomId");
+    const storedCreatedChatRoomParticipants = localStorage.getItem(
+      "createdChatRoomParticipants"
+    );
+    if (storedCreatedChatRoomId && storedCreatedChatRoomParticipants) {
+      emitListChats({ userId: info.teacherID! });
+      const chatParticipants = JSON.parse(storedCreatedChatRoomParticipants);
+      const chatName = chatParticipants
+        .filter(
+          (participant: ChatUser) => participant.userId !== info.teacherID
+        )
+        .map((participant: ChatUser) => participant.preferredName)
+        .join(", ");
+      handleChatSelect(storedCreatedChatRoomId, chatName);
+      localStorage.removeItem("createdChatRoomId");
+      localStorage.removeItem("createdChatRoomParticipants");
+    }
+
+    if (
+      selectedChat &&
+      !storedSelectedChat &&
+      selectedChat === storedSelectedChat &&
+      chatMessages.length > 0
+    ) {
       emitReadMessages({
         chatId: selectedChat,
         unreadMessages: chatMessages,
       });
+    }
+
+    if (
+      storedSelectedChat &&
+      storedSelectedChat !== selectedChat &&
+      chatMessages
+    ) {
+      setSelectedChat(storedSelectedChat);
     }
   }, [chatMessages, selectedChat]);
 
@@ -123,9 +170,8 @@ const Chat: FC = () => {
           <ChatWindow
             selectedChat={selectedChat}
             messages={chatMessages}
-            messagesAreLoading={areMessagesLoading}
+            messagesAreLoading={areMessagesLoading || isCreatingChatRoom}
             name={name}
-            // toID={toID}
             textMessage={textMessage}
             handleTextMessageChange={handleTextMessageChange}
             handleClickAttach={handleClickAttach}

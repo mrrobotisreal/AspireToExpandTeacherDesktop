@@ -58,7 +58,19 @@ export const createChatID = (
 export interface Student {
   student_id: string;
   preferred_name: string;
+  first_name: string;
+  last_name: string;
   email_address: string;
+  profile_picture_url: string;
+}
+
+export interface Teacher {
+  teacherID: string;
+  preferred_name: string;
+  first_name: string;
+  last_name: string;
+  email_address: string;
+  profile_picture_url: string;
 }
 
 interface ChatContextProps {
@@ -72,7 +84,13 @@ interface ChatContextProps {
   students: Student[];
   studentsAreLoading: boolean;
   fetchAllStudents: () => Promise<Student[]>;
+  teachers: Teacher[];
+  teachersAreLoading: boolean;
+  listTeachers: (teacherId: string) => Promise<Teacher[]>;
   _sendMessage: (roomId: string, content: string) => void;
+  selectedChat: string | null;
+  handleSelectChat: (chatId: string) => void;
+  handleExitChat: () => void;
 }
 
 const ChatContext = createContext<ChatContextProps>({
@@ -86,39 +104,56 @@ const ChatContext = createContext<ChatContextProps>({
   students: [],
   studentsAreLoading: false,
   fetchAllStudents: async () => [],
+  teachers: [],
+  teachersAreLoading: false,
+  listTeachers: async () => [],
   _sendMessage: (roomId: string, content: string) => {},
+  selectedChat: null,
+  handleSelectChat: (chatId: string) => {},
+  handleExitChat: () => {},
 });
 
 export const useChatContext = () => useContext<ChatContextProps>(ChatContext);
 
 const ChatProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const { info } = useTeacherContext();
+  // const { info } = useTeacherContext();
   const [chats, setChats] = useState<Chat[]>([]);
   const [chatsAreLoading, setChatsAreLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [messagesAreLoading, setMessagesAreLoading] = useState(false);
   const [students, setStudents] = useState<Student[]>([]);
   const [studentsAreLoading, setStudentsAreLoading] = useState(false);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [teachersAreLoading, setTeachersAreLoading] = useState(false);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [_messages, _setMessages] = useState([]);
-  const [currentRoom, setCurrentRoom] = useState(null);
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+
+  const handleSelectChat = (chatId: string) => {
+    // setSelectedChat(chatId);
+    localStorage.setItem("selectedChat", chatId);
+  };
+  const handleExitChat = () => {
+    // setSelectedChat(null);
+    localStorage.removeItem("selectedChat");
+  };
 
   useEffect(() => {
     let newSocket: Socket | null = null;
 
     // Register the user
-    if (info.teacherID) {
-      // newSocket = io("http://localhost:11114");
-      // setSocket(newSocket);
-      // newSocket.emit("registerUser", {
-      //   userId: info.teacherID,
-      //   userType: "teacher",
-      //   preferredName: info.preferredName,
-      //   firstName: info.firstName,
-      //   lastName: info.lastName,
-      //   profilePictureUrl: info.profilePictureURL,
-      // });
-    }
+    // if (info.teacherID) {
+    // newSocket = io("http://localhost:11114");
+    // setSocket(newSocket);
+    // newSocket.emit("registerUser", {
+    //   userId: info.teacherID,
+    //   userType: "teacher",
+    //   preferredName: info.preferredName,
+    //   firstName: info.firstName,
+    //   lastName: info.lastName,
+    //   profilePictureUrl: info.profilePictureURL,
+    // });
+    // }
 
     // Fetch missed messages
     // newSocket.emit("fetchMissedMessages", info.teacherID);
@@ -130,22 +165,22 @@ const ChatProvider: FC<{ children: ReactNode }> = ({ children }) => {
     // });
 
     // Handle new messages
-    if (info.teacherID && newSocket) {
-      // newSocket.on("newMessage", ({ roomId, sender, content }) => {
-      //   console.log("New message:", { sender, content });
-      //   // _setMessages((prev) => [...prev, { sender, content }]);
-      // });
-    }
+    // if (info.teacherID && newSocket) {
+    // newSocket.on("newMessage", ({ roomId, sender, content }) => {
+    //   console.log("New message:", { sender, content });
+    //   // _setMessages((prev) => [...prev, { sender, content }]);
+    // });
+    // }
 
     return () => {
-      if (newSocket) {
-        // newSocket.disconnect();
-      }
+      // if (newSocket) {
+      // newSocket.disconnect();
+      // }
     };
-  }, [info.teacherID]);
+  }, []);
 
   const _sendMessage = (roomId: string, content: string) => {
-    socket?.emit("sendMessage", { roomId, sender: info.teacherID, content });
+    // socket?.emit("sendMessage", { roomId, sender: info.teacherID, content });
   };
 
   const fetchChats = async (studentId: string) => {
@@ -252,16 +287,42 @@ const ChatProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
       localStorage.setItem("students", JSON.stringify(data.students));
 
-      const filteredStudents = data.students.filter(
-        (student: Student) => student.preferred_name !== info.preferredName
-      );
+      // const filteredStudents = data.students.filter(
+      //   (student: Student) => student.preferred_name !== info.preferredName // these don't need to be filtered out
+      // );
       await sleep(1500); // TODO: remove this; for testing only right now
       setStudentsAreLoading(false);
 
-      return filteredStudents;
+      return data.students;
     } catch (error) {
       console.error("Error fetching students:", error);
       setStudentsAreLoading(false);
+    }
+  };
+
+  const listTeachers = async (teacherId: string) => {
+    try {
+      setTeachersAreLoading(true);
+      const response = await fetch(
+        `${MAIN_SERVER_URL}/teachers?page=1&limit=100`
+      );
+      const data = await response.json();
+
+      console.log("Teachers:", JSON.stringify(data.teachers, null, 2));
+
+      // TODO: Implement pagination
+      setTeachers(data.teachers);
+
+      const filteredTeachers = data.teachers.filter(
+        (teacher: Teacher) => teacher.teacherID !== teacherId
+      );
+      await sleep(1500); // TODO: remove this; for testing only right now
+      setTeachersAreLoading(false);
+
+      return filteredTeachers;
+    } catch (error) {
+      console.error("Error listing teachers:", error);
+      setTeachersAreLoading(false);
     }
   };
 
@@ -276,7 +337,13 @@ const ChatProvider: FC<{ children: ReactNode }> = ({ children }) => {
     students,
     studentsAreLoading,
     fetchAllStudents,
+    teachers,
+    teachersAreLoading,
+    listTeachers,
     _sendMessage,
+    selectedChat,
+    handleSelectChat,
+    handleExitChat,
   };
 
   return <ChatContext.Provider value={values}>{children}</ChatContext.Provider>;
