@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { Box, IconButton, Paper, Stack, TextField } from "@mui/material";
 import { AttachFileTwoTone, Done, DoneAll, Send } from "@mui/icons-material";
@@ -35,32 +35,45 @@ const ChatWindow: FC<ChatWindowProps> = ({
   const { theme, regularFont } = useThemeContext();
   const { info } = useTeacherContext();
   const allMessages = messages || [];
+  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState<boolean>(true);
+
+  const scrollToBottom = () => {
+    if (msgContainerRef.current && isAutoScrollEnabled) {
+      const lastMessage = msgContainerRef.current.lastElementChild;
+      if (lastMessage) {
+        lastMessage.scrollIntoView({
+          block: "end",
+          behavior: "smooth",
+        });
+      }
+    }
+  };
+
+  const handleScroll = () => {
+    if (msgContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = msgContainerRef.current;
+      const isAtBottom = scrollHeight - (scrollTop + clientHeight) < 50;
+      setIsAutoScrollEnabled(isAtBottom);
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [allMessages]);
+
   const messagesComponents = messagesAreLoading ? (
     <CircularLoading />
   ) : (
     <Box
       component="div"
       ref={msgContainerRef}
+      onScroll={handleScroll}
       sx={{ display: "flex", flexDirection: "column" }}
     >
       {allMessages.map((msg, index) => {
         const date = new Date(msg.timestamp);
         const isUser = msg.sender.userId === info.teacherID!;
         const displayReceived = isUser && !msg.isRead && msg.isReceived;
-        // let displayReceived = false;
-        // let displayRead = false;
-        // if (isUser) {
-        //   if (
-        //     msg.messageId === "14663aaf-7fb2-4d64-89dc-30e2cb1adcc2" ||
-        //     msg.messageId === "8485c6f3-3eeb-4a87-8a72-30840509161a"
-        //   ) {
-        //     displayReceived = true;
-        //     displayRead = false;
-        //   } else {
-        //     displayReceived = false;
-        //     displayRead = true;
-        //   }
-        // }
         const displayRead = isUser && msg.isRead && msg.isReceived;
         return (
           <Box
@@ -118,15 +131,6 @@ const ChatWindow: FC<ChatWindowProps> = ({
   );
   const chatIsSelected = Boolean(selectedChat);
   const sendIsDisabled = !Boolean(selectedChat) || !textMessage;
-
-  useEffect(() => {
-    if (msgContainerRef.current) {
-      msgContainerRef.current.scrollIntoView({
-        block: "end",
-        behavior: "instant",
-      });
-    }
-  }, [allMessages]);
 
   return (
     <Box sx={{ pl: 2, pt: 1, pb: 1 }}>

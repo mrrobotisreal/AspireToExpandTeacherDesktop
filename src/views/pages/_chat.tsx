@@ -15,14 +15,12 @@ const Chat: FC = () => {
   const { info, getInfo, updateInfo } = useTeacherContext();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const {
-    emitRegisterUser,
     isRegistering,
-    emitListChats,
     areChatsLoading,
     emitListMessages,
     areMessagesLoading,
     emitSendMessage,
-    chats,
+    emitReadMessages,
     chatSummaries,
     chatMessages,
   } = useChat();
@@ -90,6 +88,15 @@ const Chat: FC = () => {
       updateInfo(storedStudentInfo);
     }
   }, []);
+
+  useEffect(() => {
+    if (selectedChat && chatMessages.length > 0) {
+      emitReadMessages({
+        chatId: selectedChat,
+        unreadMessages: chatMessages,
+      });
+    }
+  }, [chatMessages, selectedChat]);
 
   return (
     <Layout title={intl.formatMessage({ id: "common_chat" })}>

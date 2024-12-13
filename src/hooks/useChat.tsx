@@ -65,6 +65,11 @@ export interface EmitSendMessageParams {
   timestamp: number;
 }
 
+export interface EmitReadMessagesParams {
+  chatId: string;
+  unreadMessages: ChatMessage[];
+}
+
 interface UseChatReturns {
   emitRegisterUser: (params: EmitRegisterUserParams) => void;
   isRegistering: boolean;
@@ -73,6 +78,7 @@ interface UseChatReturns {
   emitListMessages: (params: EmitListMessagesParams) => void;
   areMessagesLoading: boolean;
   emitSendMessage: (params: EmitSendMessageParams) => void;
+  emitReadMessages: (params: EmitReadMessagesParams) => void;
   chats: Chats;
   chatSummaries: ChatSummary[];
   chatMessages: ChatMessage[];
@@ -159,6 +165,14 @@ const useChat = (): UseChatReturns => {
     }
     setChatMessages(messagesList);
     setAreMessagesLoading(false);
+  };
+
+  // Message Sending & Receiving
+  const emitSendMessage = (params: EmitSendMessageParams) => {
+    socketRef.current?.emit("sendMessage", params);
+  };
+  const emitReadMessages = (params: EmitReadMessagesParams) => {
+    const { chatId, unreadMessages } = params;
     let teacherId: string | undefined = info.teacherID;
     // This is a workaround for the teacherID not being available in the info object until I can track down where it's being overwritten
     if (!teacherId) {
@@ -172,7 +186,7 @@ const useChat = (): UseChatReturns => {
       }
     }
     const unreadMessageIds: string[] = [];
-    messagesList.forEach((msg) => {
+    unreadMessages.forEach((msg) => {
       if (msg.sender.userId !== teacherId && !msg.isRead) {
         unreadMessageIds.push(msg.messageId);
       }
@@ -185,11 +199,6 @@ const useChat = (): UseChatReturns => {
       roomId: chatId,
       unreadMessages: unreadMessageIds,
     });
-  };
-
-  // Message Sending & Receiving
-  const emitSendMessage = (params: EmitSendMessageParams) => {
-    socketRef.current?.emit("sendMessage", params);
   };
   const onMessageReceived = (message: ChatMessage) => {}; // TODO: implement this
   const onMessageRead = (messageId: string) => {}; // TODO: implement this
@@ -256,6 +265,7 @@ const useChat = (): UseChatReturns => {
     emitListMessages,
     areMessagesLoading,
     emitSendMessage,
+    emitReadMessages,
     chats,
     chatSummaries,
     chatMessages,
