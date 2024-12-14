@@ -135,7 +135,6 @@ const Chat: FC = () => {
 
     if (
       selectedChat &&
-      !storedSelectedChat &&
       selectedChat === storedSelectedChat &&
       chatMessages.length > 0
     ) {
