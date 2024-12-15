@@ -1,6 +1,14 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { useIntl } from "react-intl";
-import { Box, IconButton, Paper, Stack, TextField } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Chip,
+  IconButton,
+  Paper,
+  Stack,
+  TextField,
+} from "@mui/material";
 import { AttachFileTwoTone, Done, DoneAll, Send } from "@mui/icons-material";
 
 import { useTeacherContext } from "../../../context/teacherContext";
@@ -16,7 +24,10 @@ interface ChatWindowProps {
   name: string;
   textMessage: string;
   handleTextMessageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  isImageUploaded: boolean;
+  thumbnailUrl: string | null;
   handleClickAttach: () => void;
+  handleRemoveAttachment: () => void;
   handleClickSend: () => void;
 }
 
@@ -27,7 +38,10 @@ const ChatWindow: FC<ChatWindowProps> = ({
   name,
   textMessage,
   handleTextMessageChange,
+  isImageUploaded,
+  thumbnailUrl,
   handleClickAttach,
+  handleRemoveAttachment,
   handleClickSend,
 }) => {
   const intl = useIntl();
@@ -101,8 +115,18 @@ const ChatWindow: FC<ChatWindowProps> = ({
               }}
             >
               <Text fontFamily={regularFont}>
-                <strong>{msg.sender.preferredName}:</strong> {msg.content}
+                <strong>{msg.sender.preferredName}:</strong>
               </Text>
+              {msg.thumbnailUrl && msg.imageUrl && (
+                <Box onClick={() => console.log("Image clicked!")}>
+                  <img
+                    src={msg.thumbnailUrl}
+                    alt="thumbnail"
+                    style={{ width: "100%" }}
+                  />
+                </Box>
+              )}
+              <Text fontFamily={regularFont}>{msg.content}</Text>
               <Stack
                 direction="row"
                 // spacing={0.5}
@@ -192,29 +216,56 @@ const ChatWindow: FC<ChatWindowProps> = ({
             }}
           />
         </IconButton>
-        <TextField
-          variant="outlined"
-          fullWidth
-          size="small"
-          multiline
-          maxRows={4}
-          label={
-            <Text variant="caption" fontFamily={regularFont}>
-              {intl.formatMessage({ id: "chat_messagePlaceholder" })}
-            </Text>
-          }
-          sx={{
-            ml: 1,
-            mr: 1,
-            backgroundColor: theme.palette.background.default,
-            borderRadius: "6px",
-            fontFamily: regularFont,
-            color: theme.palette.text.primary,
-          }}
-          disabled={!chatIsSelected}
-          value={textMessage}
-          onChange={handleTextMessageChange}
-        />
+        <Stack direction="column" sx={{ flex: 1, mr: 1, ml: 1 }}>
+          <TextField
+            variant="outlined"
+            fullWidth
+            size="small"
+            multiline
+            maxRows={4}
+            label={
+              <Text variant="caption" fontFamily={regularFont}>
+                {intl.formatMessage({ id: "chat_messagePlaceholder" })}
+              </Text>
+            }
+            sx={{
+              // ml: 1,
+              // mr: 1,
+              backgroundColor: theme.palette.background.default,
+              borderRadius: "6px",
+              fontFamily: regularFont,
+              color: theme.palette.text.primary,
+            }}
+            disabled={!chatIsSelected}
+            value={textMessage}
+            onChange={handleTextMessageChange}
+          />
+          {isImageUploaded && thumbnailUrl && (
+            <Stack
+              direction="row"
+              sx={{ justifyContent: "flex-start" }}
+              spacing={2}
+            >
+              <Chip
+                label={
+                  "..." +
+                  thumbnailUrl.slice(
+                    thumbnailUrl.length - 11,
+                    thumbnailUrl.length - 1
+                  )
+                }
+                variant="outlined"
+                sx={{
+                  fontFamily: regularFont,
+                  color: theme.palette.text.primary,
+                  backgroundColor: theme.palette.primary.light,
+                }}
+                avatar={<Avatar src={thumbnailUrl} alt="thumbnail" />}
+                onDelete={handleRemoveAttachment}
+              />
+            </Stack>
+          )}
+        </Stack>
         <IconButton disabled={sendIsDisabled} onClick={() => handleClickSend()}>
           <Send
             sx={{

@@ -20,6 +20,8 @@ export interface ChatMessage {
   chatId: string;
   sender: ChatUser;
   content: string;
+  imageUrl?: string;
+  thumbnailUrl?: string;
   timestamp: number;
   isReceived: boolean;
   isRead: boolean;
@@ -64,6 +66,8 @@ export interface EmitSendMessageParams {
   roomId: string;
   sender: ChatUser;
   message: string;
+  imageUrl?: string;
+  thumbnailUrl?: string;
   timestamp: number;
 }
 
@@ -76,6 +80,8 @@ export interface EmitCreateChatRoomParams {
   sender: ChatUser;
   participants: ChatUser[];
   message: string;
+  imageUrl?: string;
+  thumbnailUrl?: string;
   timestamp: number;
 }
 
@@ -141,17 +147,28 @@ const useChat = (): UseChatReturns => {
     sender,
     participants,
     message,
+    imageUrl,
+    thumbnailUrl,
     timestamp,
   }: {
     errorMessage: string;
     sender: ChatUser;
     participants: ChatUser[];
     message: string;
+    imageUrl?: string;
+    thumbnailUrl?: string;
     timestamp: number;
   }) => {
     if (errorMessage.includes("RoomId already exists")) {
       console.log("Chat room already exists, trying again...");
-      emitCreateChatRoom({ sender, participants, message, timestamp });
+      emitCreateChatRoom({
+        sender,
+        participants,
+        message,
+        imageUrl,
+        thumbnailUrl,
+        timestamp,
+      });
     } else {
       console.error("Error creating chat room:", errorMessage);
       setIsCreatingChatRoom(false);

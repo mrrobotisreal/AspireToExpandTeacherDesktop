@@ -11,7 +11,12 @@ import { Grid } from "@mui/material";
 
 import { useTeacherContext } from "../../context/teacherContext";
 import { useChatContext } from "../../context/chatContext";
-import useChat, { ChatUser, EmitSendMessageParams } from "../../hooks/useChat";
+import useChat, {
+  ChatUser,
+  EmitCreateChatRoomParams,
+  EmitSendMessageParams,
+} from "../../hooks/useChat";
+import useUploadImage from "../../hooks/useUploadImage";
 import Layout from "../layout/layout";
 
 import ChatDialog from "./chatComponents/_chatDialog";
@@ -21,6 +26,7 @@ import ChatWindow from "./chatComponents/_chatWindow";
 const Chat: FC = () => {
   const intl = useIntl();
   const { info, getInfo, updateInfo } = useTeacherContext();
+  const { uploadChatImage } = useUploadImage();
   // const { selectedChat, handleSelectChat, handleExitChat } = useChatContext();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const {
@@ -38,6 +44,9 @@ const Chat: FC = () => {
   } = useChat();
   const [name, setName] = useState<string>("");
   const [textMessage, setTextMessage] = useState<string>("");
+  const [isImageUploaded, setIsImageUploaded] = useState<boolean>(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [isStartNewChatOpen, setIsStartNewChatOpen] = useState<boolean>(false);
 
   const handleChatSelect = (chatId: string, chatName: string) => {
@@ -56,8 +65,44 @@ const Chat: FC = () => {
     setTextMessage(event.target.value);
   };
 
-  const handleClickAttach = () => {
+  const handleClickAttach = async () => {
     console.log("Attach clicked");
+    const filePath = await window.electronAPI.selectImage();
+
+    if (filePath) {
+      const fileExtension = filePath.split(".").pop();
+      console.log(`File extension: ${fileExtension}`);
+
+      if (!fileExtension) {
+        console.error("File extension is required to upload image");
+        return;
+      }
+
+      if (!info.teacherID || info.teacherID === "") {
+        console.error("Student ID is required to upload image");
+        return;
+      }
+
+      try {
+        const uploadedImage = await uploadChatImage(
+          filePath,
+          fileExtension,
+          info.teacherID
+        );
+        console.log("Uploaded image:", JSON.stringify(uploadedImage, null, 2));
+        setImageUrl(uploadedImage?.imageURL || null);
+        setThumbnailUrl(uploadedImage?.thumbnailURL || null);
+        setIsImageUploaded(true);
+      } catch (error) {
+        console.error("Error uploading image: ", error);
+      }
+    }
+  };
+  const handleRemoveAttachment = () => {
+    console.log("Remove attachment clicked");
+    setIsImageUploaded(false);
+    setImageUrl(null);
+    setThumbnailUrl(null);
   };
 
   const handleClickSend = () => {
@@ -77,6 +122,13 @@ const Chat: FC = () => {
       message: textMessage,
       timestamp: Date.now(),
     };
+    if (isImageUploaded && imageUrl && thumbnailUrl) {
+      newMessage.imageUrl = imageUrl;
+      newMessage.thumbnailUrl = thumbnailUrl;
+      setIsImageUploaded(false);
+      setImageUrl(null);
+      setThumbnailUrl(null);
+    }
     console.log("Sending message", JSON.stringify(newMessage, null, 2));
     emitSendMessage(newMessage);
     setTextMessage("");
@@ -85,7 +137,7 @@ const Chat: FC = () => {
   const handleOpenStartNewChat = () => setIsStartNewChatOpen(true);
   const handleCloseStartNewChat = () => setIsStartNewChatOpen(false);
   const handleStartNewChat = (participants: ChatUser[], message: string) => {
-    emitCreateChatRoom({
+    const newMessage: EmitCreateChatRoomParams = {
       sender: {
         userId: info.teacherID!,
         userType: "teacher",
@@ -97,7 +149,15 @@ const Chat: FC = () => {
       participants,
       message,
       timestamp: Date.now(),
-    });
+    };
+    if (isImageUploaded && imageUrl && thumbnailUrl) {
+      newMessage.imageUrl = imageUrl;
+      newMessage.thumbnailUrl = thumbnailUrl;
+      setIsImageUploaded(false);
+      setImageUrl(null);
+      setThumbnailUrl(null);
+    }
+    emitCreateChatRoom(newMessage);
     handleCloseStartNewChat();
   };
 
@@ -173,7 +233,10 @@ const Chat: FC = () => {
             name={name}
             textMessage={textMessage}
             handleTextMessageChange={handleTextMessageChange}
+            isImageUploaded={isImageUploaded}
+            thumbnailUrl={thumbnailUrl}
             handleClickAttach={handleClickAttach}
+            handleRemoveAttachment={handleRemoveAttachment}
             handleClickSend={handleClickSend}
           />
         </Grid>
