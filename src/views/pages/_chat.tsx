@@ -1,11 +1,4 @@
-import React, {
-  FC,
-  useEffect,
-  useState,
-  useRef,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { FC, useEffect, useState, useRef } from "react";
 import { useIntl } from "react-intl";
 import { Grid } from "@mui/material";
 
@@ -31,7 +24,6 @@ const Chat: FC = () => {
   const { theme } = useThemeContext();
   const { uploadChatImage } = useUploadImage();
   const { uploadAudioMessage } = useUploadAudio();
-  // const { selectedChat, handleSelectChat, handleExitChat } = useChatContext();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const {
     isRegistering,
@@ -39,6 +31,7 @@ const Chat: FC = () => {
     isCreatingChatRoom,
     emitListChats,
     areChatsLoading,
+    clearMessages,
     emitListMessages,
     areMessagesLoading,
     emitSendMessage,
@@ -73,6 +66,11 @@ const Chat: FC = () => {
     }
     setName(chatName);
     emitListMessages({ roomId: chatId, userId: info.teacherID! });
+  };
+  const handleChatClose = () => {
+    clearMessages();
+    setSelectedChat(null);
+    setName("");
   };
 
   const handleTextMessageChange = (
@@ -494,6 +492,7 @@ const Chat: FC = () => {
         <Grid item xs={8} md={9}>
           <ChatWindow
             selectedChat={selectedChat}
+            handleCloseChat={handleChatClose}
             messages={chatMessages}
             messagesAreLoading={areMessagesLoading || isCreatingChatRoom}
             name={name}

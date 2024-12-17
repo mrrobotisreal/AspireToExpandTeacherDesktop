@@ -19,6 +19,7 @@ import {
   DoneAll,
   Mic,
   MicOff,
+  MoreVert,
   PlayCircleTwoTone,
   Send,
   StopCircleTwoTone,
@@ -32,6 +33,7 @@ import Text from "../../text/text";
 
 interface ChatWindowProps {
   selectedChat: string | null;
+  handleCloseChat: () => void;
   messages: ChatMessage[];
   messagesAreLoading: boolean;
   name: string;
@@ -56,6 +58,7 @@ interface ChatWindowProps {
 
 const ChatWindow: FC<ChatWindowProps> = ({
   selectedChat,
+  handleCloseChat,
   messages,
   messagesAreLoading,
   name,
@@ -242,8 +245,16 @@ const ChatWindow: FC<ChatWindowProps> = ({
             backgroundColor: theme.palette.primary.dark,
             borderTopLeftRadius: "6px",
             borderTopRightRadius: "6px",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: selectedChat && name ? "space-between" : "center",
           }}
         >
+          {selectedChat && name && (
+            <IconButton onClick={handleCloseChat}>
+              <CloseIcon sx={{ color: theme.palette.primary.contrastText }} />
+            </IconButton>
+          )}
           <Text
             variant="h6"
             fontFamily={regularFont}
@@ -253,6 +264,13 @@ const ChatWindow: FC<ChatWindowProps> = ({
           >
             {name || intl.formatMessage({ id: "chat_recentChats" })}
           </Text>
+          {selectedChat && name && (
+            <IconButton
+              onClick={() => console.log("more chat options clicked!")}
+            >
+              <MoreVert sx={{ color: theme.palette.primary.contrastText }} />
+            </IconButton>
+          )}
         </Box>
         <Paper
           sx={{
