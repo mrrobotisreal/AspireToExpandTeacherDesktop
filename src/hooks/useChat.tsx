@@ -22,6 +22,7 @@ export interface ChatMessage {
   content: string;
   imageUrl?: string;
   thumbnailUrl?: string;
+  audioUrl?: string;
   timestamp: number;
   isReceived: boolean;
   isRead: boolean;
@@ -68,6 +69,7 @@ export interface EmitSendMessageParams {
   message: string;
   imageUrl?: string;
   thumbnailUrl?: string;
+  audioUrl?: string;
   timestamp: number;
 }
 
@@ -82,6 +84,7 @@ export interface EmitCreateChatRoomParams {
   message: string;
   imageUrl?: string;
   thumbnailUrl?: string;
+  audioUrl?: string;
   timestamp: number;
 }
 
@@ -149,6 +152,7 @@ const useChat = (): UseChatReturns => {
     message,
     imageUrl,
     thumbnailUrl,
+    audioUrl,
     timestamp,
   }: {
     errorMessage: string;
@@ -157,6 +161,7 @@ const useChat = (): UseChatReturns => {
     message: string;
     imageUrl?: string;
     thumbnailUrl?: string;
+    audioUrl?: string;
     timestamp: number;
   }) => {
     if (errorMessage.includes("RoomId already exists")) {
@@ -167,6 +172,7 @@ const useChat = (): UseChatReturns => {
         message,
         imageUrl,
         thumbnailUrl,
+        audioUrl,
         timestamp,
       });
     } else {

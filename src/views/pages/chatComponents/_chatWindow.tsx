@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import {
   Avatar,
@@ -9,7 +9,16 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { AttachFileTwoTone, Done, DoneAll, Send } from "@mui/icons-material";
+import {
+  AttachFileTwoTone,
+  Done,
+  DoneAll,
+  Mic,
+  MicOff,
+  PlayCircleTwoTone,
+  Send,
+  StopCircleTwoTone,
+} from "@mui/icons-material";
 
 import { useTeacherContext } from "../../../context/teacherContext";
 import { useThemeContext } from "../../../context/themeContext";
@@ -28,6 +37,16 @@ interface ChatWindowProps {
   thumbnailUrl: string | null;
   handleClickAttach: () => void;
   handleRemoveAttachment: () => void;
+  isRecording: boolean;
+  handleStartRecording: () => void;
+  handleStopRecording: () => void;
+  handleDeleteRecording: () => void;
+  audioURL: string | null;
+  audioRef: React.RefObject<HTMLAudioElement>;
+  isPlayingAudio: boolean;
+  handlePlayAudio: () => void;
+  handleStopAudio: () => void;
+  canvasRef: React.RefObject<HTMLCanvasElement>;
   handleClickSend: () => void;
 }
 
@@ -42,6 +61,16 @@ const ChatWindow: FC<ChatWindowProps> = ({
   thumbnailUrl,
   handleClickAttach,
   handleRemoveAttachment,
+  isRecording,
+  handleStartRecording,
+  handleStopRecording,
+  handleDeleteRecording,
+  audioURL,
+  audioRef,
+  isPlayingAudio,
+  handlePlayAudio,
+  handleStopAudio,
+  canvasRef,
   handleClickSend,
 }) => {
   const intl = useIntl();
@@ -74,6 +103,34 @@ const ChatWindow: FC<ChatWindowProps> = ({
   useEffect(() => {
     scrollToBottom();
   }, [allMessages]);
+
+  const AudioCanvas = (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%",
+        height: "100px",
+        gap: "10px",
+        flexGrow: 1,
+        backgroundColor: "#f3f4f6",
+        borderRadius: "6px",
+      }}
+    >
+      <canvas
+        style={{
+          flexGrow: 1,
+          width: "100%",
+          height: "100%",
+          display: "block",
+          borderRadius: "6px",
+        }}
+        ref={canvasRef}
+      ></canvas>
+      <audio ref={audioRef} src={audioURL || ""} />
+    </Box>
+  );
 
   const messagesComponents = messagesAreLoading ? (
     <CircularLoading />
@@ -126,6 +183,11 @@ const ChatWindow: FC<ChatWindowProps> = ({
                   />
                 </Box>
               )}
+              {msg.audioUrl && (
+                <Box>
+                  <audio controls src={msg.audioUrl} />
+                </Box>
+              )}
               <Text fontFamily={regularFont}>{msg.content}</Text>
               <Stack
                 direction="row"
@@ -155,6 +217,7 @@ const ChatWindow: FC<ChatWindowProps> = ({
   );
   const chatIsSelected = Boolean(selectedChat);
   const sendIsDisabled = !Boolean(selectedChat) || !textMessage;
+  const isTexting = textMessage.length > 0;
 
   return (
     <Box sx={{ pl: 2, pt: 1, pb: 1 }}>
@@ -179,6 +242,7 @@ const ChatWindow: FC<ChatWindowProps> = ({
         sx={{
           flex: 1,
           p: 2,
+          // height: isRecording && !audioURL && !isTexting ? "64vh" : "74vh",
           height: "74vh",
           overflowY: "auto",
           width: "100%",
@@ -217,29 +281,54 @@ const ChatWindow: FC<ChatWindowProps> = ({
           />
         </IconButton>
         <Stack direction="column" sx={{ flex: 1, mr: 1, ml: 1 }}>
-          <TextField
-            variant="outlined"
-            fullWidth
-            size="small"
-            multiline
-            maxRows={4}
-            label={
-              <Text variant="caption" fontFamily={regularFont}>
-                {intl.formatMessage({ id: "chat_messagePlaceholder" })}
-              </Text>
-            }
-            sx={{
-              // ml: 1,
-              // mr: 1,
-              backgroundColor: theme.palette.background.default,
-              borderRadius: "6px",
-              fontFamily: regularFont,
-              color: theme.palette.text.primary,
-            }}
-            disabled={!chatIsSelected}
-            value={textMessage}
-            onChange={handleTextMessageChange}
-          />
+          {!isRecording && audioURL && !isTexting && (
+            <>
+              {/* <Box sx={{ flexGrow: 1, backgroundColor: "black" }}>
+                <canvas style={{ flexGrow: 1 }} ref={canvasRef}></canvas>
+                <audio ref={audioRef} />
+              </Box> */}
+              {AudioCanvas}
+              <Stack direction="row" spacing={2}>
+                <Chip
+                  label={
+                    "..." +
+                    audioURL.slice(audioURL.length - 11, audioURL.length - 1)
+                  }
+                  variant="outlined"
+                  sx={{
+                    fontFamily: regularFont,
+                    color: theme.palette.text.primary,
+                    backgroundColor: theme.palette.primary.light,
+                  }}
+                  onDelete={handleDeleteRecording}
+                />
+              </Stack>
+            </>
+          )}
+          {!isRecording && !audioURL && (
+            <TextField
+              variant="outlined"
+              fullWidth
+              size="small"
+              multiline
+              maxRows={4}
+              label={
+                <Text variant="caption" fontFamily={regularFont}>
+                  {intl.formatMessage({ id: "chat_messagePlaceholder" })}
+                </Text>
+              }
+              sx={{
+                backgroundColor: theme.palette.background.default,
+                borderRadius: "6px",
+                fontFamily: regularFont,
+                color: theme.palette.text.primary,
+              }}
+              disabled={!chatIsSelected}
+              value={textMessage}
+              onChange={handleTextMessageChange}
+            />
+          )}
+          {isRecording && !audioURL && !isTexting && AudioCanvas}
           {isImageUploaded && thumbnailUrl && (
             <Stack
               direction="row"
@@ -266,15 +355,61 @@ const ChatWindow: FC<ChatWindowProps> = ({
             </Stack>
           )}
         </Stack>
-        <IconButton disabled={sendIsDisabled} onClick={() => handleClickSend()}>
-          <Send
-            sx={{
-              color: sendIsDisabled
-                ? "InactiveCaptionText"
-                : theme.palette.secondary.light,
-            }}
-          />
-        </IconButton>
+        {isTexting && !audioURL && !isRecording && (
+          <IconButton onClick={handleClickSend}>
+            <Send
+              sx={{
+                color: theme.palette.secondary.light,
+              }}
+            />
+          </IconButton>
+        )}
+        {audioURL && !isRecording && !isTexting && (
+          <Stack direction="row" spacing={2}>
+            {isPlayingAudio ? (
+              <IconButton onClick={handleStopAudio}>
+                <StopCircleTwoTone
+                  sx={{
+                    color: theme.palette.secondary.light,
+                  }}
+                />
+              </IconButton>
+            ) : (
+              <IconButton onClick={handlePlayAudio}>
+                <PlayCircleTwoTone
+                  sx={{
+                    color: theme.palette.secondary.light,
+                  }}
+                />
+              </IconButton>
+            )}
+            <IconButton onClick={handleClickSend}>
+              <Send
+                sx={{
+                  color: theme.palette.secondary.light,
+                }}
+              />
+            </IconButton>
+          </Stack>
+        )}
+        {!audioURL && !isTexting && !isRecording && (
+          <IconButton onClick={handleStartRecording}>
+            <Mic
+              sx={{
+                color: theme.palette.secondary.light,
+              }}
+            />
+          </IconButton>
+        )}
+        {isRecording && !isTexting && !audioURL && (
+          <IconButton onClick={handleStopRecording}>
+            <MicOff
+              sx={{
+                color: theme.palette.secondary.light,
+              }}
+            />
+          </IconButton>
+        )}
       </Box>
     </Box>
   );
