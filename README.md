@@ -1,4 +1,4 @@
-# Aspire With Alina desktop app (Teacher version)
+# Aspire to Expand desktop app (Teacher version)
 
 _An educational platform for teachers who want a trustworthy and well built desktop application for teaching their students._ 👩‍🏫👨‍🏫💻📚
 
@@ -40,7 +40,11 @@ This app provides teachers with the ability manage existing and new student data
 
 ## Demo
 
-![gifDemo](./demoTeacherDesktop.mov.gif)
+![gifDemo](https://winapps-solutions-llc.s3.us-west-2.amazonaws.com/products/aspire-with-alina/teacherDesktopDemo.gif)
+
+**Old Demo Below: Added to showcase Video calling**
+
+![oldGifDemo](./demoTeacherDesktop.mov.gif)
 
 More demos will be added over time...
 
@@ -50,17 +54,17 @@ More demos will be added over time...
 
 ```bash
 # Step 1: Clone the repo
-git clone https://github.com/mrrobotisreal/AspireWithAlinaTeacherDesktop.git
+git clone https://github.com/mrrobotisreal/AspireToExpandTeacherDesktop.git
 
 # Step 2: Enter project directory and install dependencies
-cd AspireWithAlinaTeacherDesktop
+cd AspireToExpandTeacherDesktop
 npm install
 
 # Step 3: Create required environment variables
-export MAIN_SERVER_URL=<your-instance-hosting-AspireWithAlinaServer>
-export WS_VIDEO_SERVER_URL=<your-instance-hosting-AspireWithAlinaClassroomServer>
-export WS_CHAT_SERVER_URL=<your-instance-hosting-AspireWithAlinaChatServer>
-export HTTP_CHAT_SERVER_URL=<your-instance-hosting-AspireWithAlinaChatServer>
+export MAIN_SERVER_URL=<your-instance-hosting-AspireToExpandServer>
+export WS_VIDEO_SERVER_URL=<your-instance-hosting-AspireToExpandClassroomServer>
+export WS_CHAT_SERVER_URL=<your-instance-hosting-AspireToExpandChatServer>
+export HTTP_CHAT_SERVER_URL=<your-instance-hosting-AspireToExpandChatServer>
 export SALT=<your-preferred-salt>
 export GOOGLE_CLIENT_ID=<your-google-app-client-id>
 export GOOGLE_CLIENT_SECRET=<your-google-app-client-secret>
@@ -80,17 +84,17 @@ npm run start-node
 
 ```powershell
 # Step 1: Clone the repo
-git clone https://github.com/mrrobotisreal/AspireWithAlinaTeacherDesktop.git
+git clone https://github.com/mrrobotisreal/AspireToExpandTeacherDesktop.git
 
 # Step 2: Enter project directory and install dependencies
-cd AspireWithAlinaTeacherDesktop
+cd AspireToExpandTeacherDesktop
 npm install
 
 # Step 3: Create required environment variables
-$Env:MAIN_SERVER_URL = <your-instance-hosting-AspireWithAlinaServer>
-$Env:WS_VIDEO_SERVER_URL = <your-instance-hosting-AspireWithAlinaClassroomServer>
-$Env:WS_CHAT_SERVER_URL = <your-instance-hosting-AspireWithAlinaChatServer>
-$Env:HTTP_CHAT_SERVER_URL = <your-instance-hosting-AspireWithAlinaChatServer>
+$Env:MAIN_SERVER_URL = <your-instance-hosting-AspireToExpandServer>
+$Env:WS_VIDEO_SERVER_URL = <your-instance-hosting-AspireToExpandClassroomServer>
+$Env:WS_CHAT_SERVER_URL = <your-instance-hosting-AspireToExpandChatServer>
+$Env:HTTP_CHAT_SERVER_URL = <your-instance-hosting-AspireToExpandChatServer>
 $Env:SALT = <your-preferred-salt>
 $Env:GOOGLE_CLIENT_ID = <your-google-app-client-id>
 $Env:GOOGLE_CLIENT_SECRET = <your-google-app-client-secret>
@@ -110,17 +114,17 @@ npm run wstart-node
 
 ```cmd
 rem Step 1: Clone the repo
-git clone https://github.com/mrrobotisreal/AspireWithAlinaTeacherDesktop.git
+git clone https://github.com/mrrobotisreal/AspireToExpandTeacherDesktop.git
 
 rem Step 2: Enter project directory and install dependencies
-cd AspireWithAlinaTeacherDesktop
+cd AspireToExpandTeacherDesktop
 npm install
 
 rem Step 3: Create required environment variables
-set MAIN_SERVER_URL=<your-instance-hosting-AspireWithAlinaServer>
-set WS_VIDEO_SERVER_URL=<your-instance-hosting-AspireWithAlinaClassroomServer>
-set WS_CHAT_SERVER_URL=<your-instance-hosting-AspireWithAlinaChatServer>
-set HTTP_CHAT_SERVER_URL=<your-instance-hosting-AspireWithAlinaChatServer>
+set MAIN_SERVER_URL=<your-instance-hosting-AspireToExpandServer>
+set WS_VIDEO_SERVER_URL=<your-instance-hosting-AspireToExpandClassroomServer>
+set WS_CHAT_SERVER_URL=<your-instance-hosting-AspireToExpandChatServer>
+set HTTP_CHAT_SERVER_URL=<your-instance-hosting-AspireToExpandChatServer>
 set SALT=<your-preferred-salt>
 set GOOGLE_CLIENT_ID=<your-google-app-client-id>
 set GOOGLE_CLIENT_SECRET=<your-google-app-client-secret>
@@ -159,7 +163,7 @@ A download link to the finalized production app version will be posted here...
 
 ## Usage
 
-**NOTE**: In order to first log in to this app, you must manually insert a teacher account into the MongoDB database on your instance of the AspireWithAlinaServer with the following properties:
+**NOTE**: In order to first log in to this app, you must manually insert a teacher account into the MongoDB database on your instance of the AspireToExpandServer with the following properties:
 
 ```mongosh
 db.students.insertOne({

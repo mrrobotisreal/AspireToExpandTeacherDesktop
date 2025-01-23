@@ -6,6 +6,8 @@ export interface ElectronAPI {
   getMainServerURL: () => string;
   getVideoServerURL: () => string;
   getChatServerURL: () => string;
+  getMainChatServerURL: () => string;
+  getChatUploadsServerURL: () => string;
   getChatHttpServerURL: () => string;
   getSalt: () => string;
   getCwd: () => string;
@@ -23,6 +25,7 @@ export interface ElectronAPI {
   getMediaSources: () => Promise<Electron.DesktopCapturerSource[]>;
   getStripePublishableKey: () => string;
   getPaymentServerURL: () => string;
+  getOpenAiApiKey: () => string;
 }
 
 declare global {

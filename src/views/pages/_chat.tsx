@@ -1,10 +1,20 @@
-import React, { FC, useEffect, useState, useRef } from "react";
+import React, { FC, RefObject, useEffect, useState, useRef } from "react";
 import { useIntl } from "react-intl";
-import { Grid } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  Stack,
+  Tooltip,
+} from "@mui/material";
+import { Cancel, Phone } from "@mui/icons-material";
 
 import { useTeacherContext } from "../../context/teacherContext";
 import { useThemeContext } from "../../context/themeContext";
-import { useChatContext } from "../../context/chatContext";
 import useChat, {
   ChatUser,
   EmitCreateChatRoomParams,
@@ -13,32 +23,35 @@ import useChat, {
 import useUploadImage from "../../hooks/useUploadImage";
 import useUploadAudio from "../../hooks/useUploadAudio";
 import Layout from "../layout/layout";
+import Text from "../text/text";
+import { MAIN_SERVER_URL } from "../../constants/urls";
 
+import CallDialog from "./chatComponents/_callDialog";
 import ChatDialog from "./chatComponents/_chatDialog";
 import ChatList from "./chatComponents/_chatList";
 import ChatWindow from "./chatComponents/_chatWindow";
 
+export type CallType =
+  | "incomingAudio"
+  | "outgoingAudio"
+  | "incomingVideo"
+  | "outgoingVideo"
+  | null;
+
+export interface ChatVideoRefObject {
+  id: string;
+  label: string;
+  profilePictureUrl: string;
+  ref: RefObject<HTMLVideoElement>;
+}
+
 const Chat: FC = () => {
   const intl = useIntl();
   const { info, getInfo, updateInfo } = useTeacherContext();
-  const { theme } = useThemeContext();
+  const { theme, heavyFont, regularFont } = useThemeContext();
   const { uploadChatImage } = useUploadImage();
   const { uploadAudioMessage } = useUploadAudio();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
-  const {
-    isRegistering,
-    emitCreateChatRoom,
-    isCreatingChatRoom,
-    emitListChats,
-    areChatsLoading,
-    clearMessages,
-    emitListMessages,
-    areMessagesLoading,
-    emitSendMessage,
-    emitReadMessages,
-    chatSummaries,
-    chatMessages,
-  } = useChat();
   const [name, setName] = useState<string>("");
   const [textMessage, setTextMessage] = useState<string>("");
   const [isImageUploaded, setIsImageUploaded] = useState<boolean>(false);
@@ -57,9 +70,130 @@ const Chat: FC = () => {
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
   const [dataArray, setDataArray] = useState<Uint8Array | null>(null);
   const [isStartNewChatOpen, setIsStartNewChatOpen] = useState<boolean>(false);
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const localStream = useRef<MediaStream | null>(null);
+  const remoteStream = useRef<MediaStream | null>(null);
+  const [isCallOpen, setIsCallOpen] = useState<boolean>(false);
+  const [callType, setCallType] = useState<CallType>("outgoingVideo");
+  const [callSettingsAnchorEl, setCallSettingsAnchorEl] =
+    useState<null | HTMLElement>(null);
+  const [isAudioOn, setIsAudioOn] = useState<boolean>(false);
+  const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedAudioDeviceID, setSelectedAudioDeviceID] =
+    useState<string>("");
+  const [selectedAudioDeviceLabel, setSelectedAudioDeviceLabel] =
+    useState<string>("");
+  const [isVideoOn, setIsVideoOn] = useState<boolean>(false);
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedVideoDeviceID, setSelectedVideoDeviceID] =
+    useState<string>("");
+  const [selectedVideoDeviceLabel, setSelectedVideoDeviceLabel] =
+    useState<string>("");
+  const [activeVideoTrack, setActiveVideoTrack] =
+    useState<MediaStreamTrack | null>(null);
+  const [activeAudioTrack, setActiveAudioTrack] =
+    useState<MediaStreamTrack | null>(null);
+  const [isRemoteStreamActive, setIsRemoteStreamActive] = useState(false);
+  const [isCallIncomingDialogOpen, setIsCallIncomingDialogOpen] =
+    useState(false);
+  const [answer, setAnswer] = useState<any>(null);
+  const [incomingCallerId, setIncomingCallerId] = useState<string | null>(null);
+  const [incomingCallPreferredName, setIncomingCallPreferredName] = useState<
+    string | null
+  >(null);
+  const [incomingCallProfilePictureUrl, setIncomingCallProfilePictureUrl] =
+    useState<string | null>(null);
+  // const [incomingCallPreferredName, setIncomingCallPreferredName] = useState<
+  //   string | null
+  // >("Mitch");
+  // const [incomingCallProfilePictureUrl, setIncomingCallProfilePictureUrl] =
+  //   useState<string | null>(
+  //     "https://aspirewithalina.com:8888/uploads/profileImages/df78d663_5801_41ba_ac65_7a7415a2e6c6.png"
+  //   );
+  const handleAnswerRejectIncomingCall = async (
+    createdAnswer: any,
+    callerId: string
+  ) => {
+    console.log("Answering call from:", callerId);
+    setAnswer(createdAnswer);
+    setIncomingCallerId(callerId);
+    const studentInfoResponse = await fetch(
+      `${MAIN_SERVER_URL}/student?studentID=${callerId}`
+    );
+    if (studentInfoResponse.status === 200) {
+      const callerInfo = await studentInfoResponse.json();
+      console.log("Student Caller info:", JSON.stringify(callerInfo, null, 2));
+      console.log("Caller preferred name:", callerInfo.student.preferred_name);
+      console.log(
+        "Caller profile picture URL:",
+        callerInfo.student.profile_picture_url
+      );
+      setIncomingCallPreferredName(callerInfo.student.preferred_name);
+      setIncomingCallProfilePictureUrl(callerInfo.student.profile_picture_url);
+      setIsCallIncomingDialogOpen(true);
+      return;
+    }
+    const teacherInfoResponse = await fetch(
+      `${MAIN_SERVER_URL}/teacher?teacherID=${callerId}`
+    );
+    if (teacherInfoResponse.status === 200) {
+      const callerInfo = await teacherInfoResponse.json();
+      console.log("Teacher Caller info:", JSON.stringify(callerInfo, null, 2));
+      setIncomingCallPreferredName(callerInfo.teacher.preferred_name);
+      setIncomingCallProfilePictureUrl(callerInfo.teacher.profile_picture_url);
+      setIsCallIncomingDialogOpen(true);
+      return;
+    }
+  };
+  const {
+    isRegistering,
+    emitCreateChatRoom,
+    isCreatingChatRoom,
+    emitListChats,
+    areChatsLoading,
+    clearMessages,
+    emitListMessages,
+    areMessagesLoading,
+    emitSendMessage,
+    emitReadMessages,
+    chatSummaries,
+    chatMessages,
+    // peerConnection,
+    emitCallUser,
+    emitAnswerCall,
+    emitSendIceCandidate,
+  } = useChat({ handleAnswerRejectIncomingCall });
+  // peerConnection.onicecandidate = (event) => {
+  //   if (event.candidate) {
+  //     emitSendIceCandidate({
+  //       to: recipients[0]?.userId,
+  //       candidate: event.candidate,
+  //     });
+  //   }
+  // };
+  // peerConnection.ontrack = (event) => {
+  //   if (remoteVideoRef.current) {
+  //     remoteVideoRef.current.srcObject = event.streams[0];
+  //   }
+  //   setIsRemoteStreamActive(true);
+  // };
+  // peerConnection.onconnectionstatechange = () => {
+  //   if (peerConnection.connectionState === "disconnected") {
+  //     setIsRemoteStreamActive(false);
+  //   }
+  // };
+  const [recipients, setRecipients] = useState<ChatUser[]>([]);
+  const [isCallStarted, setIsCallStarted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const handleChatSelect = (chatId: string, chatName: string) => {
+  const handleChatSelect = (
+    chatId: string,
+    chatName: string,
+    chatUsers: ChatUser[]
+  ) => {
     localStorage.setItem("selectedChat", chatId);
+    setRecipients(chatUsers);
     setSelectedChat(chatId);
     if (!info.teacherID) {
       console.error("Teacher ID not found");
@@ -395,6 +529,167 @@ const Chat: FC = () => {
     handleCloseStartNewChat();
   };
 
+  const handleOpenCallSettingsMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setCallSettingsAnchorEl(event.currentTarget);
+  };
+  const handleCloseCallSettingsMenu = () => {
+    setCallSettingsAnchorEl(null);
+  };
+  const toggleVideo = () => {
+    if (activeVideoTrack) {
+      activeVideoTrack.enabled = !activeVideoTrack.enabled;
+      setIsVideoOn(activeVideoTrack.enabled);
+    }
+  };
+  const toggleAudio = () => {
+    if (activeAudioTrack) {
+      activeAudioTrack.enabled = !activeAudioTrack.enabled;
+      setIsAudioOn(activeAudioTrack.enabled);
+    }
+  };
+  const handleSelectVideoDevice = async (deviceId: string, label: string) => {
+    try {
+      const constraints = {
+        video: { deviceId: { exact: deviceId } },
+        audio: { deviceId: { exact: selectedAudioDeviceID } },
+      };
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+      const videoTrack = stream.getVideoTracks()[0];
+      setActiveVideoTrack(videoTrack);
+      setSelectedVideoDeviceID(deviceId);
+      setSelectedVideoDeviceLabel(label);
+    } catch (error) {
+      console.error(
+        "Error starting video stream with the selected device: ", // TODO: localize
+        error
+      );
+    }
+  };
+  const handleSelectAudioDevice = async (deviceId: string, label: string) => {
+    try {
+      const constraints = {
+        video: { deviceId: { exact: selectedVideoDeviceID } },
+        audio: { deviceId: { exact: deviceId } },
+      };
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+      const audioTrack = stream.getAudioTracks()[0];
+      setActiveAudioTrack(audioTrack);
+      setSelectedAudioDeviceID(deviceId);
+      setSelectedAudioDeviceLabel(label);
+    } catch (error) {
+      console.error(
+        "Error starting audio stream with the selected device: ", // TODO: localize
+        error
+      );
+    }
+  };
+
+  const fetchDevices = async () => {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const audioStreamDevices = devices.filter(
+      (device) => device.kind === "audioinput"
+    );
+    const videoStreamDevices = devices.filter(
+      (device) => device.kind === "videoinput"
+    );
+    setAudioDevices(audioStreamDevices);
+    setSelectedAudioDeviceID(audioStreamDevices[0].deviceId);
+    setSelectedAudioDeviceLabel(audioStreamDevices[0].label);
+    setVideoDevices(videoStreamDevices);
+    setSelectedVideoDeviceID(videoStreamDevices[0].deviceId);
+    setSelectedVideoDeviceLabel(videoStreamDevices[0].label);
+  };
+
+  async function broadcastOffer() {
+    // if (!peerConnection) {
+    //   return;
+    // }
+    // if (isCallStarted) {
+    //   peerConnection.close();
+    //   setIsCallStarted(false);
+    //   setIsRemoteStreamActive(false);
+    //   // TODO: send signal that the call is ended for other participants
+    // } else {
+    //   const offer = await peerConnection.createOffer();
+    //   await peerConnection.setLocalDescription(offer);
+    //   emitCallUser({ from: info.teacherID!, to: recipients[0]?.userId, offer });
+    //   setIsCallStarted(true);
+    // }
+  }
+
+  const handleVideoCall = async (isIncoming: boolean) => {
+    // console.log("handleVideoCall...");
+    // try {
+    //   const stream = await navigator.mediaDevices.getUserMedia({
+    //     video: true,
+    //     audio: true,
+    //   });
+    //   localStream.current = stream;
+    //   if (localVideoRef.current) {
+    //     localVideoRef.current.srcObject = stream;
+    //   }
+    //   stream.getTracks().forEach((track) => {
+    //     peerConnection.addTrack(track, stream);
+    //   });
+    //   const videoTrack = stream.getVideoTracks()[0];
+    //   setActiveVideoTrack(videoTrack);
+    //   const audioTrack = stream.getAudioTracks()[0];
+    //   setActiveAudioTrack(audioTrack);
+    //   setCallType(isIncoming ? "incomingVideo" : "outgoingVideo");
+    //   setIsAudioOn(true);
+    //   setIsVideoOn(true);
+    //   setIsCallOpen(true);
+    //   await fetchDevices();
+    //   handleSelectAudioDevice(selectedAudioDeviceID, selectedAudioDeviceLabel);
+    //   handleSelectVideoDevice(selectedVideoDeviceID, selectedVideoDeviceLabel);
+    //   if (!isIncoming) {
+    //     broadcastOffer();
+    //   }
+    // } catch (error) {
+    //   console.error("Error starting media: ", error);
+    // }
+  };
+  const handleAudioCall = async (isIncoming: boolean) => {
+    // console.log("handleAudioCall...");
+    // try {
+    //   const stream = await navigator.mediaDevices.getUserMedia({
+    //     video: false,
+    //     audio: true,
+    //   });
+    //   localStream.current = stream;
+    //   if (localVideoRef.current) {
+    //     localVideoRef.current.srcObject = stream;
+    //   }
+    //   stream.getTracks().forEach((track) => {
+    //     peerConnection.addTrack(track, stream);
+    //   });
+    //   const videoTrack = stream.getVideoTracks()[0];
+    //   setActiveVideoTrack(videoTrack);
+    //   const audioTrack = stream.getAudioTracks()[0];
+    //   setActiveAudioTrack(audioTrack);
+    //   setCallType(isIncoming ? "incomingAudio" : "outgoingAudio");
+    //   setIsAudioOn(true);
+    //   setIsVideoOn(false);
+    //   setIsCallOpen(true);
+    //   await fetchDevices();
+    //   handleSelectAudioDevice(selectedAudioDeviceID, selectedAudioDeviceLabel);
+    //   handleSelectVideoDevice(selectedVideoDeviceID, selectedVideoDeviceLabel);
+    //   if (!isIncoming) {
+    //     broadcastOffer();
+    //   }
+    // } catch (error) {
+    //   console.error("Error starting media: ", error);
+    // }
+  };
+  const handleEndCall = () => {};
+  const handleCloseCallDialog = () => setIsCallOpen(false); // TODO: finish implementing this
+
   useEffect(() => {
     localStorage.removeItem("selectedChat");
     localStorage.removeItem("createdChatRoomId");
@@ -416,13 +711,13 @@ const Chat: FC = () => {
     if (storedCreatedChatRoomId && storedCreatedChatRoomParticipants) {
       emitListChats({ userId: info.teacherID! });
       const chatParticipants = JSON.parse(storedCreatedChatRoomParticipants);
-      const chatName = chatParticipants
-        .filter(
-          (participant: ChatUser) => participant.userId !== info.teacherID
-        )
+      const chatUsers = chatParticipants.filter(
+        (participant: ChatUser) => participant.userId !== info.teacherID
+      );
+      const chatName = chatUsers
         .map((participant: ChatUser) => participant.preferredName)
         .join(", ");
-      handleChatSelect(storedCreatedChatRoomId, chatName);
+      handleChatSelect(storedCreatedChatRoomId, chatName, chatUsers);
       localStorage.removeItem("createdChatRoomId");
       localStorage.removeItem("createdChatRoomParticipants");
     }
@@ -513,6 +808,8 @@ const Chat: FC = () => {
             handleStopAudio={handleStopAudio}
             canvasRef={canvasRef}
             handleClickSend={handleClickSend}
+            handleVideoCall={handleVideoCall}
+            handleAudioCall={handleAudioCall}
           />
         </Grid>
       </Grid>
@@ -521,6 +818,104 @@ const Chat: FC = () => {
         handleCloseStartNewChat={handleCloseStartNewChat}
         handleStartNewChat={handleStartNewChat}
       />
+      <CallDialog
+        isCallOpen={isCallOpen}
+        callType={callType}
+        callSettingsAnchorEl={callSettingsAnchorEl}
+        handleOpenCallSettingsMenu={handleOpenCallSettingsMenu}
+        handleCloseCallSettingsMenu={handleCloseCallSettingsMenu}
+        recipients={recipients}
+        isAudioOn={isAudioOn}
+        audioDevices={audioDevices}
+        selectedAudioDeviceID={selectedAudioDeviceID}
+        selectedAudioDeviceLabel={selectedAudioDeviceLabel}
+        handleSelectAudioDevice={handleSelectAudioDevice}
+        toggleAudio={toggleAudio}
+        isVideoOn={isVideoOn}
+        videoDevices={videoDevices}
+        selectedVideoDeviceID={selectedVideoDeviceID}
+        selectedVideoDeviceLabel={selectedVideoDeviceLabel}
+        handleSelectVideoDevice={handleSelectVideoDevice}
+        toggleVideo={toggleVideo}
+        handleEndCall={handleEndCall}
+        handleCloseCallDialog={handleCloseCallDialog}
+        localVideoRef={localVideoRef}
+        remoteVideoRef={remoteVideoRef}
+        isRemoteStreamActive={isRemoteStreamActive}
+      />
+      <Dialog
+        open={isCallIncomingDialogOpen}
+        onClose={() => setIsCallIncomingDialogOpen(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle
+          sx={{
+            backgroundColor: theme.palette.primary.main,
+            fontFamily: heavyFont,
+            textAlign: "center",
+          }}
+        >
+          Incoming Call
+        </DialogTitle>
+        <DialogContent>
+          <Stack
+            direction="column"
+            spacing={2}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              alignContent: "center",
+              mt: 2,
+            }}
+          >
+            <Avatar
+              src={incomingCallProfilePictureUrl || ""}
+              alt={incomingCallPreferredName || "User"}
+            />
+            <Text
+              variant="body1"
+              fontWeight="bold"
+              textAlign="center"
+              fontFamily={regularFont}
+            >
+              {incomingCallPreferredName || "User"}
+            </Text>
+            <Stack direction="row" spacing={2} justifyContent="center">
+              <Box>
+                <Tooltip title="Reject Call">
+                  <IconButton
+                    onClick={() => setIsCallIncomingDialogOpen(false)}
+                  >
+                    <Cancel sx={{ color: "red" }} />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+              <Box>
+                <Tooltip title="Answer Call">
+                  <IconButton
+                    onClick={() => {
+                      emitAnswerCall({
+                        from: incomingCallerId!,
+                        to: info.teacherID!,
+                        // from: info.teacherID!,
+                        // to: incomingCallerId!,
+                        answer,
+                      });
+                      handleVideoCall(true);
+                      setIsCallIncomingDialogOpen(false);
+                    }}
+                  >
+                    <Phone sx={{ color: "green" }} />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </Stack>
+          </Stack>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };

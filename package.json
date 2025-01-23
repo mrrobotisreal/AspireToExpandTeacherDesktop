@@ -5,7 +5,7 @@
   "main": "dist/main.js",
   "build": {
     "appId": "io.winapps.aspirewithalina.teacher.desktop",
-    "productName": "Aspire With Alina (Teacher Desktop)",
+    "productName": "Aspire to Expand (Teacher Desktop)",
     "directories": {
       "output": "build",
       "buildResources": "build"
@@ -96,6 +96,7 @@
     "bcryptjs": "^2.4.3",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
+    "openai": "^4.77.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-intl": "^7.0.1",

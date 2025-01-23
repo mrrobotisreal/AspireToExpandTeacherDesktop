@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
-import { MAIN_SERVER_URL } from "../constants/urls";
+import { MAIN_SERVER_URL, CHAT_UPLOADS_SERVER_URL } from "../constants/urls";
 import { readFile, getBase64ImageURL } from "../utilities/uploadImage";
 
 interface UseUploadImageReturns {
@@ -76,10 +76,13 @@ async function uploadChatImage(
     //   method: "POST",
     //   body: formData,
     // });
-    const response = await fetch(`http://localhost:11115/chats/upload/image`, {
-      method: "POST",
-      body: formData,
-    });
+    const response = await fetch(
+      `${CHAT_UPLOADS_SERVER_URL}/chats/upload/image`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Failed to upload image: ${response.statusText}`);

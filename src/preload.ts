@@ -7,6 +7,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   generateKeyPair: () => ipcRenderer.invoke("generate-key-pair"),
   getMainServerURL: () => process.env.MAIN_SERVER_URL,
   getVideoServerURL: () => process.env.WS_VIDEO_SERVER_URL,
+  getMainChatServerURL: () => process.env.WS_MAIN_CHAT_SERVER_URL,
+  getChatUploadsServerURL: () => process.env.CHAT_UPLOADS_SERVER_URL,
   getChatServerURL: () => process.env.WS_CHAT_SERVER_URL,
   getChatHttpServerURL: () => process.env.HTTP_CHAT_SERVER_URL,
   getSalt: () => process.env.SALT,
@@ -30,6 +32,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getMediaSources: () => ipcRenderer.invoke("get-media-sources"),
   getStripePublishableKey: () => process.env.STRIPE_PUBLISHABLE_KEY,
   getPaymentServerURL: () => process.env.PAYMENT_SERVER_URL,
+  getOpenAiApiKey: () => process.env.OPENAI_API_KEY,
 });
 
 window.addEventListener("DOMContentLoaded", () => {

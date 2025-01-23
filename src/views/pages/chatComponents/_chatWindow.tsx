@@ -7,6 +7,9 @@ import {
   Chip,
   Dialog,
   IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
   Paper,
   Stack,
   TextField,
@@ -20,9 +23,11 @@ import {
   Mic,
   MicOff,
   MoreVert,
+  Phone,
   PlayCircleTwoTone,
   Send,
   StopCircleTwoTone,
+  Videocam,
 } from "@mui/icons-material";
 
 import { useTeacherContext } from "../../../context/teacherContext";
@@ -54,6 +59,8 @@ interface ChatWindowProps {
   handleStopAudio: () => void;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   handleClickSend: () => void;
+  handleVideoCall: (isIncoming: boolean) => void;
+  handleAudioCall: (isIncoming: boolean) => void;
 }
 
 const ChatWindow: FC<ChatWindowProps> = ({
@@ -79,6 +86,8 @@ const ChatWindow: FC<ChatWindowProps> = ({
   handleStopAudio,
   canvasRef,
   handleClickSend,
+  handleVideoCall,
+  handleAudioCall,
 }) => {
   const intl = useIntl();
   const msgContainerRef = useRef<HTMLDivElement>(null);
@@ -88,6 +97,7 @@ const ChatWindow: FC<ChatWindowProps> = ({
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState<boolean>(true);
   const [isImageOpen, setIsImageOpen] = useState<boolean>(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const scrollToBottom = () => {
     if (msgContainerRef.current && isAutoScrollEnabled) {
@@ -120,6 +130,13 @@ const ChatWindow: FC<ChatWindowProps> = ({
   const handleCloseImage = () => {
     setIsImageOpen(false);
     setSelectedImageUrl(null);
+  };
+
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
   };
 
   const AudioCanvas = (
@@ -202,8 +219,12 @@ const ChatWindow: FC<ChatWindowProps> = ({
                 </Box>
               )}
               {msg.audioUrl && (
-                <Box>
-                  <audio controls src={msg.audioUrl} />
+                <Box sx={{ width: "100%" }}>
+                  <audio
+                    style={{ width: "100%" }}
+                    controls
+                    src={msg.audioUrl}
+                  />
                 </Box>
               )}
               <Text fontFamily={regularFont}>{msg.content}</Text>
@@ -265,12 +286,53 @@ const ChatWindow: FC<ChatWindowProps> = ({
             {name || intl.formatMessage({ id: "chat_recentChats" })}
           </Text>
           {selectedChat && name && (
-            <IconButton
-              onClick={() => console.log("more chat options clicked!")}
-            >
+            <IconButton onClick={handleOpenMenu}>
               <MoreVert sx={{ color: theme.palette.primary.contrastText }} />
             </IconButton>
           )}
+          <Menu
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleCloseMenu}
+          >
+            <MenuItem
+              onClick={() => {
+                handleVideoCall(false);
+                setAnchorEl(null);
+              }}
+            >
+              <ListItemIcon>
+                <Videocam color="secondary" />
+              </ListItemIcon>
+              <Text fontFamily={regularFont}>
+                {/* {intl.formatMessage({ id: "chat_videoCall" })} */}
+                Video call
+              </Text>
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                // handleAudioCall(false);
+                setAnchorEl(null);
+              }}
+            >
+              <ListItemIcon>
+                <Phone color="secondary" />
+              </ListItemIcon>
+              <Text fontFamily={regularFont}>
+                {/* {intl.formatMessage({ id: "chat_audioCall" })} */}
+                Audio call
+              </Text>
+            </MenuItem>
+          </Menu>
         </Box>
         <Paper
           sx={{
