@@ -198,6 +198,8 @@ db.students.insertOne({
 ![Visual Studio Code](https://custom-icon-badges.demolab.com/badge/Visual%20Studio%20Code-0078d7.svg?logo=vsc&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/WinApps-Solutions-%232f56a0?labelColor=%232f56a0&color=%23ff6f00)
 
+![Mitchell Wintrow Profile Pic](https://winapps-solutions-llc.s3.us-west-2.amazonaws.com/mitchProfilePic.png)
+
 ## License
 
 This project is licensed under the **Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License**.
@@ -209,6 +211,4 @@ For the full license text, visit [Creative Commons License](https://creativecomm
 
 ---
 
-This product is developed and owned by [WinApps Solutions LLC ©2024](https://winapps.io)
-
-![WinApps Logo](./WinAppsLogo.svg)
+This product is developed and owned by [WinApps (Mitchell Wintrow) ©2024](https://winapps.io)
